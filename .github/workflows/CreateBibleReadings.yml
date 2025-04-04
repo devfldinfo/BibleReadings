@@ -1,0 +1,32 @@
+name: Compile LaTeX Files
+
+on:
+  push:
+    paths:
+      - 'input/**/*.tex'
+  workflow_dispatch:
+
+jobs:
+  compile-latex:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up LaTeX environment
+        run: sudo apt-get update && sudo apt-get install -y texlive-full
+
+      - name: Compile LaTeX files
+        run: |
+          mkdir -p output
+          for texfile in input/*.tex; do
+            filename=$(basename "$texfile" .tex)
+            pdflatex -output-directory=output "$texfile"
+          done
+
+      - name: Upload PDFs as artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: compiled-pdfs
+          path: output/*.pdf
