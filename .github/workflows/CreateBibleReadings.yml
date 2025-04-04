@@ -3,7 +3,7 @@ name: Compile LaTeX Files
 on:
   push:
     paths:
-      - 'input/**/*.tex'
+      - 'input/**/*.Tex'
   workflow_dispatch:
 
 jobs:
@@ -20,8 +20,8 @@ jobs:
       - name: Compile LaTeX files
         run: |
           mkdir -p output
-          for texfile in input/*.tex; do
-            filename=$(basename "$texfile" .tex)
+          for texfile in input/*.Tex; do
+            filename=$(basename "$texfile" .Tex)
             pdflatex -output-directory=output "$texfile"
           done
 
