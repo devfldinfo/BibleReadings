@@ -30,7 +30,7 @@ jobs:
       - name: Compile LaTeX document
         run: |
           pdflatex HymnLatex.tex
-          pdflatex HymnLatex.tex  # Run twice for proper refs
+     #     pdflatex HymnLatex.tex  # Run twice for proper refs
 
       - name: Upload PDF
         uses: actions/upload-artifact@v4
