@@ -1,0 +1,307 @@
+\ProvidesPackage{hymnbookbasegen}
+% Define this in derived package
+%\newcommand{\hymnColumnCount}[0]{2}
+\usepackage{times}
+\usepackage{babel}
+\usepackage[
+%balancingshow
+]{multicol}
+\newcommand{\beginColumns}[0]{\begin{multicols}{\hymnColumnCount}}
+\newcommand{\beginIndexColumns}[0]{\begin{multicols}{\hymnColumnCount}}
+\newcommand{\EndColumns}[0]{\end{multicols}}
+\newcommand{\EndIndexColumns}[0]{\end{multicols}}
+\newcommand{\FinalizeHymns}[0]{}
+\usepackage{ulem}
+\renewcommand{\ULthickness}{0.13ex}
+\def\ulineB{\bgroup \ULdepth=0.28ex \ULset}
+\usepackage{ragged2e}
+\usepackage{fp}
+\usepackage{tabularx}
+\newcount\FontScaleCnt
+\newcount\LargeFontCnt
+\newcount\NumberFontCnt
+\newcount\NormalFontCnt
+\newcount\SmallFontCnt
+\newcount\XSmallFontCnt
+\newcommand{\SelectFontSize}[1]{\fontsize{#1}{#1}\selectfont}
+\providecommand{\NumberFont}[0]{%\usefont{T1}{ppl}{m}{n}%
+\SelectFontSize{\NumberFontCnt}}
+\providecommand{\HeadFont}[0]{\SelectFontSize{\LargeFontCnt}}
+\providecommand{\BodyFont}[0]{\SelectFontSize{\NormalFontCnt}
+}
+\providecommand{\TuneLineFont}[0]{\SelectFontSize{\SmallFontCnt}}
+\providecommand{\IndexFont}[0]{\SelectFontSize{\XSmallFontCnt}}
+\newcommand{\xxClipCounters}[0]{
+\FPclip\LargeFontCnt{\LargeFontCnt{}}
+\FPclip\NumberFontCnt{\NumberFontCnt{}}
+\FPclip\NormalFontCnt{\NormalFontCnt{}}
+\FPclip\SmallFontCnt{\SmallFontCnt{}}
+\FPclip\XSmallFontCnt{\XSmallFontCnt{}}
+}
+\newcommand{\FontScaling}[1]{
+\FPset\FontScaleCnt{#1}
+\xxCustomSize
+}
+\newcommand{\xxCustomSize}[0]{
+\FPmul\LargeFontCnt{0.22}{\FontScaleCnt{}} %0.25 for 2 line dropbox
+\FPmul\NumberFontCnt{0.2}{\FontScaleCnt{}}
+\FPmul\NormalFontCnt{0.104}{\FontScaleCnt{}}
+\FPmul\SmallFontCnt{0.075}{\FontScaleCnt{}}
+\FPmul\XSmallFontCnt{0.08}{\FontScaleCnt{}}
+\xxClipCounters
+}
+\newcommand{\xxRescaleFonts}[1]{
+\xxClipCounters
+}
+%\newcommand{\PreambleInit}[2]{
+%\makeindex[name=eng,title=#1,columnseprule=true,columnsep=10pt,noautomatic]
+%\makeindex[name=local,title=#2,
+%columnseprule=true,columnsep=10pt, columns=2,
+%noautomatic]
+%}
+%\indexsetup{othercode=\IndexFont,firstpagestyle=empty,level=\IndexHeader}
+\newcommand{\IndexHeader}[1]{\HeadFont #1}
+\newcommand{\breakHymn}[0]{\columnbreak}
+\newcommand{\BrokenStyle}[0]{
+    \providecommand{\EndHymnAction}[0]{\breakHymn}
+}
+\newcommand{\UnbrokenStyle}[0]{
+    \providecommand{\EndHymnAction}[0]{}
+}
+\message{hymn nos.,}
+\countdef\c@hymn=0 \c@hymn=1
+\def\cl@hymn{}
+\def\hymnnumbering#1{%
+    \global\c@hymn \@ne \gdef\thehymn{\csname @#1\endcsname
+    \c@hymn}}
+\newcommand{\RR}[0]{\RaggedRight}
+\newcommand{\xxInitA}[0]{
+    \errorcontextlines=7
+    \renewcommand\@idxitem{\par\hangindent 20\p@}
+    \hymnnumbering{arabic}
+    %\setlength{\parskip}{0mm plus1ex minus0mm}
+    \setlength{\parskip}{0pt}
+    \setlength\parindent{0pt}
+    \setlength{\columnseprule}{.6pt}
+    \setlength{\columnsep}{10pt}
+    %\setlength{\postmulticols}{120pts}
+    %\setcounter{collectmore}{-1}
+%\offinterlineskip
+    \UnbrokenStyle
+%\BrokenStyle
+    \hyphenpenalty = 4000
+    \exhyphenpenalty = 4000%
+    \doublehyphendemerits = 20
+    \finalhyphendemerits = 20
+    \adjdemerits = 0
+    \linepenalty=2500
+    \pagestyle{empty}
+}
+\newcommand{\InitB}[0]{
+    \xxInitB}
+\newcommand{\xxInitB}[0]{
+    \beginColumns
+    \pagestyle{empty}
+    \RR
+    \advance\interlinepenalty by 100000
+    \tracingpages=-1
+}
+\newcommand{\InitA}[0]{
+    \xxInitA
+}
+\newcommand{\InitFPA}[1]{
+    \xxInitA
+    \vbox{} \Huge\vfil\centering{#1}\vfil\vskip 20pt\break
+}
+\newcommand{\IndentSize}[0]{1em}
+\newcommand{\HI}[0]{\hangindent=\IndentSize}
+\newcommand{\FinilizeIndexes}[0]{%
+\RR}
+\newcommand{\FinalizeColumns}[0]{\vfil
+\pagebreak}
+\newcommand{\IndexSeparator}[0]{\newpage}%
+\newcommand{\Finalize}[0]{\FinalizeHymns\FinalizeColumns%
+\EndIndexColumns%
+\newpage%
+\IndexHeader{\centering{\EngIndexHeader}}\vbox{}\vskip -3.5ex\vbox{}%
+\beginIndexColumns%
+\IndexFont\EngIndex%
+\pagestyle{empty}
+\EndIndexColumns%
+\IndexSeparator%
+\IndexHeader{\centering{\LocalIndexHeader}}\vbox{}\vskip -3.5ex\vbox{}%
+\beginIndexColumns\IndexFont\LocalIndex%
+\EndIndexColumns%
+\thispagestyle{empty}%
+\vskip 0pt plus 1fill%
+}
+\newcommand{\FinalizeNoIndex}[0]{
+\vskip 0pt plus 1fill%
+\thispagestyle{empty}%
+\EndIndexColumns%
+\thispagestyle{empty}%
+}
+\newcommand{\FinalizeLocalOnly}[0]{
+%\vskip 0pt plus 1fill
+\EndIndexColumns%
+\newpage%
+\IndexHeader{\centering{\LocalIndexHeader}}\vbox{}\vskip -3.5ex\vbox{}%
+\beginIndexColumns%
+\IndexFont%
+\LocalIndex%
+\EndIndexColumns%
+\thispagestyle{empty}%
+\vskip 0pt plus 1fill%
+}
+\newbox\centerdot \setbox\centerdot=\hbox{\hskip.55ex.\hskip.4ex}
+%\newcommand{\idxnf}[1]{\penalty0\hbox{}\penalty10000\leaders\copy\centerdot\hfill#1\penalty-100}
+\renewcommand{\indexspace}[0]{\vskip .7ex plus.25ex minus.15ex}
+\newdimen\IndexColWidth
+\newcommand{\xxhymnitem}[2]{%
+{\raggedright%
+\setbox\TempBox = \vbox{\hbox{\hskip .3em #2}}
+\IndexColWidth=\columnwidth%
+\advance\IndexColWidth by -1.65em%-\wd\TempBox%
+\advance\IndexColWidth by -0.1em%
+\hsize=\IndexColWidth\hangindent=1\wd\centerdot#1\penalty0\hbox{}\penalty10000
+\leaders\copy\centerdot\hfill\hbox{}\par%
+\hsize=\columnwidth\vskip-\baselineskip\hfill\box\TempBox\par\raggedright}}
+\newcommand{\hymnitem}[2]{%
+%\item
+\linepenalty=10000
+%\IndexColWidth=\columnwidth%
+%\advance\IndexColWidth by -1.5em%
+\setbox\IndexBox=\vtop{\xxhymnitem{#1}{#2}}
+\setbox\TempBox=\vbox{\xxhymnitem{#1}{#2}}
+%
+\copy\IndexBox\hrule height 0pt\penalty10000\vskip-\ht\IndexBox\vskip-\dp\IndexBox%
+\vbox{\hrule height \ht\TempBox depth \dp\TempBox}\vskip 0pt plus 0.0001ex
+}
+\newcommand{\SetLP}[2]{\penalty#2}
+\newbox\HNB
+\newbox\AddBox
+\newbox\AddBoxA
+\newbox\AddBoxB
+%\newbox\AddBoxTop
+\newbox\StartBox
+\newbox\NumberBox
+\newbox\DeleteBox
+\newbox\TempBox
+\newbox\IndexBox
+\newdimen\ColMinHN
+\newdimen\ColMinIndent
+\newdimen\ColMinHNIndent
+\newdimen\HNPlusIndent
+\newdimen\HNWidth
+\newdimen\HymnNumHeightLeft
+\newdimen\LastDepth
+\newdimen\TempDimen
+\newdimen\TempDimenB
+\newdimen\IndexDepth
+
+\newcommand{\HeadingLines}[4]{%
+\TuneLineFont{\def\testa{}\def\testb{#2}\def\testc{#1}%
+\ifx\testb\testa%
+\ifx\testc\testa%#2 Null, #1 Null
+\else#1\strut\fi%#2 Null, #1 not null
+\else% #2 Not Null
+\ifx\testc\testa% #2 Not Null, #1 Null
+(#2)\strut%
+\else% #2 Not Null, #1 not Null
+#1 (#2)\strut\fi\fi}%
+{\def\testa{}\def\testb{#3}\ifx\testb\testa\else#4#3\fi}\par\penalty10000\BodyFont}
+
+\newcommand{\CreateNumberBox}[1]{%
+\setbox\HNB=\hbox{\NumberFont\textbf{#1}\hskip 0.03em\BodyFont}%
+\HymnNumHeightLeft=\ht\HNB%
+\HNWidth=\wd\HNB%
+\ColMinHN=\columnwidth%
+\advance\ColMinHN by -1\HNWidth%
+\ColMinHNIndent=\ColMinHN%
+\advance\ColMinHNIndent by -\IndentSize%
+\ColMinIndent=\columnwidth%
+\advance\ColMinIndent by -\IndentSize%
+\HNPlusIndent=\HNWidth%
+\advance\HNPlusIndent by \IndentSize%
+\wd\HNB=0pt%
+%\setlength\fboxsep{0pt}
+\setbox\NumberBox=\vbox{\box\HNB}}
+
+\newcommand{\HymnHeading}[4]{%
+\centering\HeadingLines{#2}{#3}{#4}{\par\penalty10000}\RR
+\CreateNumberBox{#1}}
+
+\newcommand{\PlaceStartBox}[0]{
+\ifvoid\StartBox\else\box\StartBox\penalty10000\fi
+}
+\newcommand\BeginStartBox[0]{
+\ifvoid\StartBox%
+\setbox\StartBox=\vbox{\copy\NumberBox
+\vskip -\dp\NumberBox
+\vskip-1\ht\NumberBox\BodyFont
+\hrule height0pt depth0pt width0pt
+\vbox{\copy\AddBox}}
+%\vskip \ht\AddBox
+%\hrule height0.5pt depth0.5pt width80pt
+%\vskip -\dp\AddBox
+%\vskip 1\baselineskip
+\else%
+%\setbox\StartBox=\vbox{\box\StartBox\vskip-\LastDepth\vskip 1\baselineskip\vskip -\ht\AddBoxTop\copy\AddBox}
+\setbox\StartBox=\vbox{\box\StartBox\copy\AddBox}%\hrule height0.5pt depth0.5pt width50pt}
+\fi%
+\LastDepth=\dp\AddBox
+}
+\newcommand{\InterVerseFil}[0]{\vskip 1.3ex plus 0.5ex minus 0.5ex\penalty10000}
+\newcommand{\InterHymnFil}[0]{\vskip 1.6ex plus 1.6ex minus 0.4ex\penalty10000}
+\newcommand{\SetBLS}[0]{\baselineskip=2.25ex plus 0.2ex minus 0.1ex}
+\newcommand{\StartFirstVerse}[4]{\SetBLS\VerseLine{#2}{#3}{#4}}
+\newcommand{\NewVerse}[4]{\SetBLS\VerseLine{\textbf{#1} #2}{#3}{#4}}
+\newcommand{\EndVerse}[3]{\PlaceStartBox\SetBLS\HI#1\par\SetLP{#2}{#3}\InterVerseFil}
+\newcommand{\xxEndHymn}[3]{\SetBLS\HI#1\par\SetLP{#2}{#3}\InterHymnFil}
+\newcommand{\EndHymn}[3]{\xxEndHymn{#1}{#2}{#3}\EndHymnAction}
+\newcommand{\EndHymnNoAction}[3]{\xxEndHymn{#1}{#2}{#3}}
+\newcommand{\NewChorus}[3]{\ChorusLine{#1}{#2}{#3}}
+\newcommand{\ChorusLine}[3]{\SetBLS\HI\textit{\bfseries#1}\par\SetLP{#2}{#3}}
+\newcommand{\EndChorus}[3]{\SetBLS\HI\textit{\bfseries#1}\par\SetLP{#2}{#3}\InterVerseFil}
+\newcommand{\SelectShortestBox}[2]{\ifdim\ht#1<\ht#2%
+\box#1\else\box#2\fi}
+
+\newcommand{\VerseLine}[3]{\SetBLS
+\ifdim\HymnNumHeightLeft>\baselineskip%
+\setbox\AddBoxA=\vbox{\parshape 3%
+\HNWidth\ColMinHN\HNPlusIndent\ColMinHNIndent\IndentSize\ColMinIndent #1}
+\setbox\AddBoxB=\vbox{\parshape 2%
+\HNWidth\ColMinHN\HNPlusIndent\ColMinHNIndent#1}
+\ifdim\ht\AddBoxA<\ht\AddBoxB%
+\setbox\AddBox=\box\AddBoxA\else\setbox\AddBox=\box\AddBoxB\fi
+\BeginStartBox%
+\advance\HymnNumHeightLeft by -1\ht\AddBox
+\advance\HymnNumHeightLeft by -1\baselineskip
+\advance\HymnNumHeightLeft by 1ex
+\setbox\DeleteBox=\box\AddBox
+\else
+\ifdim\HymnNumHeightLeft>0pt%
+\setbox\AddBoxA=\vbox{\parshape 2 \HNWidth\ColMinHN\IndentSize\ColMinIndent#1}
+\setbox\AddBoxB=\vbox{\parshape 2%
+\HNWidth\ColMinHN\HNPlusIndent\ColMinHNIndent#1}
+\setbox\AddBox=\SelectShortestBox{\AddBoxA}{\AddBoxB}
+\BeginStartBox%
+\advance\HymnNumHeightLeft by -1\ht\AddBox
+\advance\HymnNumHeightLeft by -1\baselineskip
+\advance\HymnNumHeightLeft by 1ex
+\setbox\DeleteBox=\box\AddBox
+\else%
+\setbox\TempBox=\vtop{\HI#1}%
+\TempDimen =-\ht\TempBox
+\advance\TempDimen by \baselineskip
+%%\advance\TempDimen by -\prevdepth
+\setbox\TempBox=\vbox{\HI#1}%
+\TempDimenB =-\ht\TempBox
+\advance\TempDimenB by \baselineskip
+%%\advance\TempDimenB by -\prevdepth
+\ifdim\TempDimenB>0pt\advance\TempDimen by -\TempDimenB\else\fi
+\PlaceStartBox\setbox\AddBox=\vbox{\HI #1}%
+\vskip\TempDimen\box\AddBox\par\SetLP{#2}{#3}%
+\fi%
+\fi%
+}
