@@ -1,9 +1,10 @@
-name: Build LaTeX with Amharic Support
+name: Build LaTeX with Amharic Support (Minimal Install)
 
 on:
-#  push:
-#    paths:
-#      - '**.tex'
+  push:
+    paths:
+      - '**.tex'
+      - 'fonts/**'
   workflow_dispatch:
 
 jobs:
@@ -14,15 +15,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install XeLaTeX and fonts
+      - name: Install minimal LaTeX with XeLaTeX
         run: |
           sudo apt-get update
-          sudo apt-get install -y texlive-xetex
+          sudo apt-get install -y texlive-base texlive-xetex texlive-latex-recommended
 
       - name: Create output folder
         run: mkdir -p output
 
-      - name: Compile with XeLaTeX
+      - name: Compile LaTeX file
         run: xelatex -output-directory=output main.tex
 
       - name: Upload PDF artifact
