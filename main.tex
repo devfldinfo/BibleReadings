@@ -1,7 +1,21 @@
-\documentclass[english]{article}
+\documentclass{article}
 \usepackage{BibleReadings1}
 \usepackage{fontspec}
-\setmainfont{FreeSerif} % Supports Amharic (Ge'ez script)
+%\setmainfont{FreeSerif} % Supports Amharic (Ge'ez script)
+
+% Load the font from the local "fonts" folder
+\setmainfont{AbyssinicaSIL-Regular.ttf}[
+    Path=fonts/,
+    Extension=.ttf,
+    UprightFont=*
+]
+
+
+
+
+
+
+
 
 \SunAColWidths{}{}{}{Om\ voor\ te\ berei\ om\ huis\ toe\ te\ gaanzzzxxxxxxxxxxxdddx}
 \SunBColWidths{}{}{}{Om\ voor\ te\ berei\ om\ huis\ toe\ te\ gaanzzzxxxxxxdddx}
