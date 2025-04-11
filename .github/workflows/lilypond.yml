@@ -1,0 +1,32 @@
+name: Build LilyPond Score
+
+on:
+  push:
+    paths:
+      - '**.ly'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install LilyPond
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lilypond
+
+      - name: Create output directory
+        run: mkdir -p output
+
+      - name: Compile LilyPond file
+        run: lilypond -o output sample.ly
+
+      - name: Upload PDF as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lilypond-pdf
+          path: output/*.pdf
