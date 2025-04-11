@@ -1,9 +1,9 @@
 name: Build LilyPond Score
 
 on:
-  push:
-    paths:
-      - '**.ly'
+ # push:
+ ##    paths:
+  #    - '**.ly'
   workflow_dispatch:
 
 jobs:
