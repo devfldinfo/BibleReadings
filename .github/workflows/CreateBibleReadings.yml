@@ -1,4 +1,4 @@
-name: Build LaTeX document
+name: Build LaTeX with Amharic Support
 
 on:
  # push:
@@ -11,19 +11,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Install LaTeX
-      run: sudo apt-get update && sudo apt-get install -y texlive-full
+      - name: Install XeLaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-xetex texlive-lang-ethiopic fonts-freefont-ttf
 
-    - name: Compile LaTeX document
-      run: |
-        mkdir -p output
-        pdflatex -output-directory=output main.tex
+      - name: Create output folder
+        run: mkdir -p output
 
-    - name: Upload PDF as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: compiled-pdf
-        path: output/*.pdf
+      - name: Compile with XeLaTeX
+        run: xelatex -output-directory=output main.tex
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: amharic-pdf
+          path: output/*.pdf
