@@ -11,10 +11,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install LilyPond
+      - name: Install LilyPond and Noto Fonts
         run: |
           sudo apt-get update
-          sudo apt-get install -y lilypond
+          sudo apt-get install -y lilypond fonts-noto
+          fc-cache -fv
 
       - name: Create output directory
         run: mkdir -p output
@@ -29,14 +30,6 @@ jobs:
 
       - name: Compile only sample.ly
         run: lilypond -o output sample.ly
-
-  #    - name: Auto Commit PDFs
-  #       uses: stefanzweifel/git-auto-commit-action@v4
-  #      with:
-  #        commit_message: "Compiled LaTeX files with View and Print versions"
-  #        push_options: '--force'
-  #        file_pattern: 'output/*.pdf'
-        
 
       - name: Upload PDF as artifact
         uses: actions/upload-artifact@v4
