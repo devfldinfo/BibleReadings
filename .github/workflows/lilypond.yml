@@ -1,9 +1,6 @@
 name: Build LilyPond Score
 
 on:
-  push:
-    paths:
-      - '**.ly'
   workflow_dispatch:
 
 jobs:
@@ -22,14 +19,19 @@ jobs:
       - name: Create output directory
         run: mkdir -p output
 
-      - name: Convert LilyPond file to latest version
-        run: convert-ly --from=2.18.2 --to=2.24.2 -e sample.ly
+      - name: Convert root .ly files to latest version
+        run: |
+          find . -maxdepth 1 -name "*.ly" -exec convert-ly --from=2.18.2 --to=2.24.2 -e {} \;
 
-      - name: Compile LilyPond file
+      - name: Convert .ly files in Lib/ folder to latest version
+        run: |
+          find ./Lib -name "*.ly" -exec convert-ly --from=2.18.2 --to=2.24.2 -e {} \;
+
+      - name: Compile only sample.ly
         run: lilypond -o output sample.ly
 
       - name: Upload PDF as artifact
         uses: actions/upload-artifact@v4
         with:
           name: lilypond-pdf
-          path: output/*.pdf
+          path: output/sample.pdf
