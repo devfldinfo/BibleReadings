@@ -1,4 +1,4 @@
-name: Build LilyPond Score
+name: Compile Amharic Music Book
 
 on:
   workflow_dispatch:
