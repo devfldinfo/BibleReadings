@@ -1,4 +1,4 @@
-name: Build LaTeX2 with Amharic Support
+name: Compile Amharic Words Only Hymnbook
 
 on:
 #  push:
@@ -23,7 +23,7 @@ jobs:
         run: mkdir -p output
 
       - name: Compile with XeLaTeX
-        run: xelatex -output-directory=output main2.tex
+        run: xelatex -output-directory=output HymnLatex.tex
 
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
