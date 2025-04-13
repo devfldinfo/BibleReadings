@@ -8,22 +8,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Install full TeX Live (includes pdfpages and everything else)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y texlive-full
+    - name: Install XeLaTeX and fonts
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y texlive-xetex texlive-fonts-recommended fonts-freefont-ttf
 
-      - name: Create output folder
-        run: mkdir -p output
+    - name: Create output folder
+      run: mkdir -p output
 
-      - name: Compile with pdfLaTeX
-        run: pdflatex -output-directory=output HymnLatex.tex
+    - name: Compile with XeLaTeX
+      run: xelatex -output-directory=output HymnLatex.tex
 
-      - name: Upload PDF artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: hymnbook-pdf
-          path: output/*.pdf
+    - name: Upload PDF artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: amharic-pdf
+        path: output/*.pdf
+
