@@ -1,6 +1,6 @@
 \include "../Lib/LyricsCommon.ly"
 CVerseA = \lyricmode {  \set lyricMelismaAlignment = #CENTER \set shortVocalName = \markup {\right-align "1."} \set vocalName = \markup {\right-align "1."}
-  Nxa  ngi --  zi --  ndla  nges' --   pha -- 
+  Nጨa  ngi --  zi --  ndla  nges' --   pha -- 
  mba -- 
  no
   Ne --  Nko --  si  ye --  nka --  zi --  \skip 4  mu --  lo \skip 4  Ya --  de --  la  i --  mpi --  lo  nga -- 
