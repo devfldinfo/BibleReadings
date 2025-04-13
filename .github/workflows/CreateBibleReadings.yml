@@ -1,10 +1,6 @@
 name: Build LaTeX with Amharic Support (Minimal Install)
 
 on:
- # push:
- #   paths:
- #     - '**.tex'
- #     - 'fonts/**'
   workflow_dispatch:
 
 jobs:
@@ -18,7 +14,16 @@ jobs:
       - name: Install minimal LaTeX with XeLaTeX
         run: |
           sudo apt-get update
-          sudo apt-get install -y texlive-base texlive-xetex texlive-latex-recommended
+          sudo apt-get install -y texlive-base texlive-xetex texlive-latex-recommended fontconfig
+
+      - name: Install Noto Sans Ethiopic font
+        run: |
+          # Create the fonts directory if it doesn't exist
+          mkdir -p ~/.fonts
+          # Download the Noto Sans Ethiopic font (Regular)
+          wget -O ~/.fonts/NotoSansEthiopic-Regular.ttf https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSansEthiopic/NotoSansEthiopic-Regular.ttf
+          # Update font cache
+          fc-cache -fv
 
       - name: Create output folder
         run: mkdir -p output
