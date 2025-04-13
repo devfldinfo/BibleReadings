@@ -1,0 +1,28 @@
+\ProvidesPackage{hymnbookzulu}
+\usepackage{hymnbookbasegen}
+\renewcommand{\RR}[0]{\raggedright}
+\renewcommand{\HymnHeading}[4]{%
+\CreateNumberBox{#1}
+\HeadingLine{#2}{#3}{#4}{\par\penalty10000}%
+\BodyFont}
+\renewcommand{\StartFirstVerse}[3]{\VerseLine{\textbf{#1} #2}{#3}}
+\renewcommand{\InitB}[0]{
+    \xxInitB}
+
+\renewcommand{\IndexSeparator}[0]{}%
+\renewcommand{\VerseLine}[2]{\SetBLS\HI#1\par\SetLP{#2}}
+
+%\makeatletter
+%\renewcommand{\SetLP}[2]{\par\if@firstcolumn\penalty#1\else\penalty#2\fi}
+\renewcommand{\SetLP}[2]{\par\penalty#2}
+%\makeatother
+\newcommand{\HeadingLine}[3]{
+\setbox\AddBoxA=\vbox{\TuneLineFont\parshape 1 \HNWidth\ColMinHN \HeadingLines{#1}{#2}{#3}{; }}
+\setbox\AddBoxB=\vbox{\TuneLineFont\parshape 1 \HNWidth\ColMinHN \HeadingLines{#1}{#2}{#3}{\par\penalty10000}}
+\ifdim\ht\AddBoxA<\ht\AddBoxB%
+\setbox\AddBox=\box\AddBoxA\else\setbox\AddBox=\box\AddBoxB\fi
+\HymnNumHeightLeft=\ht\NumberBox
+\advance\HymnNumHeightLeft by -1\ht\AddBox
+\setbox\TempBox = \hbox{\copy\NumberBox
+\raise \HymnNumHeightLeft \copy\AddBox}
+\copy\TempBox\penalty10000}
