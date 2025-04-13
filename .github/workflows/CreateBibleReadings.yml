@@ -1,10 +1,10 @@
 name: Build LaTeX with Amharic Support (Minimal Install)
 
 on:
-  push:
-    paths:
-      - '**.tex'
-      - 'fonts/**'
+ # push:
+ #   paths:
+ #     - '**.tex'
+ #     - 'fonts/**'
   workflow_dispatch:
 
 jobs:
