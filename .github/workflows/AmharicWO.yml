@@ -1,9 +1,9 @@
 name: Compile Amharic Words Only Hymnbook
 
 on:
-#  push:
-#    paths:
-#      - '**.tex'
+  # push:
+  #   paths:
+  #     - '**.tex'
   workflow_dispatch:
 
 jobs:
@@ -14,16 +14,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install XeLaTeX and fonts
+      - name: Install LuaLaTeX and fonts
         run: |
           sudo apt-get update
-          sudo apt-get install -y texlive-xetex texlive-fonts-recommended fonts-freefont-ttf
+          sudo apt-get install -y texlive-luatex texlive-fonts-recommended fonts-freefont-ttf
 
       - name: Create output folder
         run: mkdir -p output
 
-      - name: Compile with XeLaTeX
-        run: xelatex -output-directory=output HymnLatex.tex
+      - name: Compile with LuaLaTeX
+        run: lualatex -output-directory=output HymnLatex.tex
 
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
