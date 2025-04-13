@@ -1,9 +1,9 @@
 name: Build LilyPond Score
 
 on:
- # push:
- ##    paths:
-  #    - '**.ly'
+  push:
+    paths:
+      - '**.ly'
   workflow_dispatch:
 
 jobs:
@@ -21,6 +21,9 @@ jobs:
 
       - name: Create output directory
         run: mkdir -p output
+
+      - name: Convert LilyPond file to latest version
+        run: convert-ly --from=2.18.2 --to=2.24.2 -e sample.ly
 
       - name: Compile LilyPond file
         run: lilypond -o output sample.ly
