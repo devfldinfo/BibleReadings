@@ -1,4 +1,4 @@
-name: Build LaTeX with Amharic Support (Minimal Install)
+name: Compile Amharic Bible Readings
 
 on:
   workflow_dispatch:
