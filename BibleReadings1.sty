@@ -2,6 +2,31 @@
 \usepackage{graphicx}
 \usepackage{times}
 \usepackage{color}
+
+
+\RequirePackage{fontspec}
+\RequirePackage{polyglossia}
+
+% Font setup
+\newfontfamily\amharicbasefont[
+  Path=.fonts/,
+  Extension=.ttf,
+  UprightFont=*,
+]{nyala}
+
+\newcommand{\amharicfont}{\amharicbasefont\fontsize{20pt}{22pt}\selectfont}
+%\newfontfamily\latinfont{Latin Modern Roman}
+\setmainlanguage{amharic}
+
+%\setmainfont{nyala}[Script=Ethiopic]
+
+% Simulated bold
+\newcommand{\amharicbold}[1]{%
+  {\amharicfont\addfontfeatures{FakeBold=4.0}#1}%
+}
+
+
+
 \newcommand{\border}[0]{8mm}
 \newcommand{\PrintWaterMark}{}
 \newcommand{\WaterMark}[0]{\renewcommand{\PrintWaterMark}{\sc@wm@print{\sc@watermark}}}
@@ -77,17 +102,17 @@
 \newcommand{\SelectMainFont}[0]{%
 %\usefont{T1}{fds}{m}{n}
 %\usefont{T1}{pag}{m}{n}
-\usefont{T1}{phv}{m}{n}
+%\usefont{T1}{phv}{m}{n}
 }
 \newcommand{\mf}[0]{\SelectMainFont}
 
 \newcommand{\SelectNumberFont}[0]{%
-\usefont{T1}{fds}{m}{n}
-%\usefont{T1}{pag}{m}{n}
+%\usefont{T1}{fds}{m}{n}
+\usefont{T1}{pag}{m}{n}
 }
 \newcommand{\SelectBoldNumberFont}[0]{%
-\usefont{T1}{fds}{b}{n}
-%\usefont{T1}{pag}{b}{n}
+%\usefont{T1}{fds}{b}{n}
+\usefont{T1}{pag}{b}{n}
 }
 
 %\newbox\testColWidth
@@ -103,6 +128,7 @@
 \UpdateDimMeasure{\SunADateDayDim}{\hbox{#1}}
 \UpdateDimMeasure{\SunADateMonthDim}{\hbox{#2}}
 \UpdateDimMeasure{\SunABookDim }{\hbox{#3}}
+%\UpdateDimMeasure{\SunATopicDim}{\hbox{\amharicbold{#4}}}
 \UpdateDimMeasure{\SunATopicDim}{\hbox{\textbf{#4}}}
 }
 
@@ -148,6 +174,7 @@
 \UpdateDimMeasure{\WedABookDim}{\hbox{#3}}
 \UpdateDimMeasure{\WedAChapterDim}{\hbox{#4}}
 \UpdateDimMeasure{\WedAChapterTopicDim}{\hbox{#5}}
+%\UpdateDimMeasure{\WedAChapterTopicDim}{\hbox{\amharicbold{#5}}}
 }
 \newdimen\WedBDateDayDim
 \newdimen\WedBDateMonthDim
@@ -347,13 +374,25 @@
 \UpdateDimMeasure{\WedBDateMonthDim}{\hbox{\mf#2}}
 }
 
-\newcommand{\WedTopicTypeset}[5]{
-\raggedleft\tstrut#1&\raggedright\mf#2&\multicolumn{2}{%
-\nopad p{\WedTopicDim} \nopad|}{\raggedright\mf\textbf{#3%
+%\newcommand{\WedTopicTypeset}[5]{%
+%\raggedleft\tstrut#1&\raggedright\mf#2&\multicolumn{2}{%
+%\nopad p{\WedTopicDim} \nopad|}{\raggedright\amharicbold{#3%
+%\setbox\MeasureBox=\hbox{#4}%
+%\ifdim\wd\MeasureBox>0pt\enDashSep#4\else\fi} \penalty-20\amharicfont#5\bstrut} \\ \hline}
+
+\newcommand{\WedTopicTypeset}[5]{%
+\mf\tstrut\raggedleft#1&\mf\raggedright#2&\multicolumn{2}{%
+\nopad p{\WedTopicDim} \nopad|}{\raggedright\amharicfont\amharicbold{#3}%
 \setbox\MeasureBox=\hbox{#4}%
-\ifdim\wd\MeasureBox>0pt\enDashSep%
-#4\else\fi} \penalty-20#5\bstrut} \\ \hline
-}
+\ifdim\wd\MeasureBox>0pt\enDashSep#4\fi \penalty-20%
+\parbox[t]{\WedTopicDim}{\amharicfont\raggedright#5}\bstrut} \\ \hline}
+
+%\raggedleft\tstrut#1&\raggedright\mf#2&\multicolumn{2}{%
+%\nopad p{\WedTopicDim} \nopad|}{\raggedright\mf\textbf{#3%
+%\setbox\MeasureBox=\hbox{#4}%
+%\ifdim\wd\MeasureBox>0pt\enDashSep%
+%#4\else\fi} \penalty-20#5\bstrut} \\ \hline
+%}
 
 
 \newcommand{\WedTopic}[5]{%
@@ -429,10 +468,34 @@
 \newcommand{\SunListSubH}[1]{%
 \csname SunListSubH\mtModeNameTypesetMeasure\endcsname{#1}}
 
+%\newcommand{\SunTopicTypeset}[5]{%
+%\mf\tstrut\raggedleft#1&\mf\raggedright#2&\multicolumn{2}{% 
+%\nopad p{\SunTopicDim}  |}{\raggedright\amharicbold{#3\setbox\MeasureBox=\hbox{#4}%
+%\ifdim\wd\MeasureBox>0pt\enDashSep#4\fi} \penalty-20\amharicfont#5\bstrut} \\ \hline}
+
+
+%\mf\tstrut\raggedleft#1&\mf\raggedright#2&\multicolumn{2}{% 
+%\nopad p{\SunTopicDim}  |}{\raggedright\mf\textbf{#3\setbox\MeasureBox=\hbox{#4}%
+%\ifdim\wd\MeasureBox>0pt\enDashSep#4\fi} \penalty-20#5\bstrut} \\ \hline}
+
+
+
+
+%Redefine \SunTopicTypeset to ensure \amharicbold for subject
 \newcommand{\SunTopicTypeset}[5]{%
 \mf\tstrut\raggedleft#1&\mf\raggedright#2&\multicolumn{2}{% 
-\nopad p{\SunTopicDim}  |}{\raggedright\mf\textbf{#3\setbox\MeasureBox=\hbox{#4}%
-\ifdim\wd\MeasureBox>0pt\enDashSep#4\fi} \penalty-20#5\bstrut} \\ \hline}
+\nopad p{\SunTopicDim}  |}{\raggedright\amharicfont\amharicbold{#3}%
+\setbox\MeasureBox=\hbox{#4}%
+\ifdim\wd\MeasureBox>0pt\enDashSep#4\fi \penalty-20\amharicfont#5\bstrut} \\ \hline}
+
+
+
+
+
+
+
+
+
 
 \newcommand{\SunTopicMeasureA}[5]{%
 \UpdateDimMeasure{\SunADateDayDim}{\hbox{\mf#1}}
