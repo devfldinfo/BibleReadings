@@ -2,9 +2,9 @@ name: Delete Root Directory Files
 
 on:
   workflow_dispatch: # Allows manual triggering
-  push:
-    branches:
-      - main # Or the branch you want to target
+ # push:
+  #  branches:
+ #     - main # Or the branch you want to target
 
 permissions:
   contents: write # Grants write permission for repository content
