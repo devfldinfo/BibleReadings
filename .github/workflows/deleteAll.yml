@@ -34,10 +34,10 @@ jobs:
       # Uncomment and configure if you want the deletion to be committed back to the repository.
       # Be extremely careful when using this, as it will alter your repository history.
       #
-      # uses: EndBug/add-and-commit@v9
-      # with:
-      #   author_name: GitHub Actions
-      #   author_email: actions@github.com
-      #   message: "Automated: Deleted root directory files"
-      #   add: "." # Adds all changes (including deletions)
-      #   ref: ${{ github.ref }} # Pushes to the current branch
+      uses: EndBug/add-and-commit@v9
+      with:
+         author_name: GitHub Actions
+         author_email: actions@github.com
+         message: "Automated: Deleted root directory files"
+         add: "." # Adds all changes (including deletions)
+         ref: ${{ github.ref }} # Pushes to the current branch
