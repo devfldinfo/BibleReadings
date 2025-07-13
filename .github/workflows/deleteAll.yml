@@ -6,6 +6,9 @@ on:
     branches:
       - main # Or the branch you want to target
 
+permissions:
+  contents: write # Grants write permission for repository content
+
 jobs:
   delete_files:
     runs-on: ubuntu-latest
