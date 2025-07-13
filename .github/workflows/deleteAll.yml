@@ -1,0 +1,43 @@
+name: Delete Root Directory Files
+
+on:
+  workflow_dispatch: # Allows manual triggering
+  push:
+    branches:
+      - main # Or the branch you want to target
+
+jobs:
+  delete_files:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Delete all files in root directory
+      run: |
+        # List all files and directories in the root
+        ls -la
+
+        # Delete all files in the root directory,
+        # excluding directories themselves.
+        # The -f flag forces deletion without prompt.
+        # The -v flag provides verbose output (lists deleted files).
+        find . -maxdepth 1 -type f -print -delete
+
+        # Optional: Verify deletion by listing again
+        echo "--- After deletion ---"
+        ls -la
+
+    - name: Commit and Push Changes (Optional, use with caution)
+      # This step is commented out by default.
+      # Uncomment and configure if you want the deletion to be committed back to the repository.
+      # Be extremely careful when using this, as it will alter your repository history.
+      #
+      # uses: EndBug/add-and-commit@v9
+      # with:
+      #   author_name: GitHub Actions
+      #   author_email: actions@github.com
+      #   message: "Automated: Deleted root directory files"
+      #   add: "." # Adds all changes (including deletions)
+      #   ref: ${{ github.ref }} # Pushes to the current branch
