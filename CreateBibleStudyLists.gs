@@ -1,4 +1,4 @@
-//Version 1.5
+//Version 1.6
 //This is the Web App that is called by the Bible Reading Translations sheet
 //When changes are made to this file, manage deployments and create a new version so that the sheet can call the latest code
 //LatexCompile is deployed as a library.
@@ -245,7 +245,7 @@ function compileAllLatexFiles() {
  * Starts at row 2
  */
 function generateTEXFiles(tabName) {
-
+  SpreadsheetApp.flush();
   const ss = SpreadsheetApp.openById(SheetID);
   const sheet = ss.getSheetByName(tabName);
   if (!sheet) throw new Error(`Sheet "${tabName}" not found`);
@@ -255,14 +255,13 @@ function generateTEXFiles(tabName) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return;
 
-  // Read A:K
   const values = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
 
-  values.forEach((row, i) => {
+  for (let i = 0; i < values.length; i++) {
 
     const [
-      colA,  // Lang A
-      colB,  // Lang B
+      colA,
+      colB,
       sunAMargin,
       sunBMargin,
       wedAMargin,
@@ -272,9 +271,13 @@ function generateTEXFiles(tabName) {
       trigger,
       lastRun,
       largePrint
-    ] = row;
+    ] = values[i];
 
-    if (!colA || !trigger) return;
+    // Stop the entire function if column A is blank
+    if (!colA) return;
+
+    // Skip this row if trigger is false/blank
+    if (!trigger) continue;
 
     const langA = columnLetterToIndex_(colA);
     const langB = colB ? columnLetterToIndex_(colB) : -1;
@@ -293,14 +296,13 @@ function generateTEXFiles(tabName) {
         largePrint
       );
 
-      const dateStamp = new Date();
-      sheet.getRange(i + 2, 10).setValue(dateStamp); // column J
+      sheet.getRange(i + 2, 10).setValue(new Date());
 
     } catch (err) {
       Logger.log(`Failed for row ${i + 2}: ${err}`);
     }
 
-  });
+  }
 }
 
 function columnLetterToIndex_(letter) {
