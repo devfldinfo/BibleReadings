@@ -1,4 +1,4 @@
-//Version 1.6
+//Version 1.7
 //This is the Web App that is called by the Bible Reading Translations sheet
 //When changes are made to this file, manage deployments and create a new version so that the sheet can call the latest code
 //LatexCompile is deployed as a library.
@@ -497,13 +497,17 @@ var aSunAMargin = margins.sunA;
 var aSunBMargin = margins.sunB;
 var aWedAMargin = margins.wedA;
 var aWedBMargin = margins.wedB;
-*/
+
 
   var aSunAMargin = repeatX(sunAMargin);
   var aSunBMargin = repeatX(sunBMargin);
   var aWedAMargin = repeatX(wedAMargin);
   var aWedBMargin = repeatX(wedBMargin);
-
+*/
+  var aSunAMargin = sunAMargin;
+  var aSunBMargin = sunBMargin;
+  var aWedAMargin = wedAMargin;
+  var aWedBMargin = wedBMargin;
 
   var aWatermark = "";
   if (cWatermark.length > 0)
@@ -712,8 +716,8 @@ const largeSuffix = largePrint ? "_Large" : "";
 
 const outFileName =
   bilingual
-    ? `BibleReadings_${langAName}_${langBName}${largeSuffix}.tex`
-    : `BibleReadings_${langAName}${largeSuffix}.tex`;
+    ? `${year}BR_${langAName}_${langBName}${largeSuffix}.tex`
+    : `${year}BR_${langAName}${largeSuffix}.tex`;
     
   const files = folder.getFilesByName(outFileName);
 
