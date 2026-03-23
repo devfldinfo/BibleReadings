@@ -1,4 +1,4 @@
-//Version 1.7
+//Version 1.8
 //This is the Web App that is called by the Bible Reading Translations sheet
 //When changes are made to this file, manage deployments and create a new version so that the sheet can call the latest code
 //LatexCompile is deployed as a library.
@@ -8,15 +8,22 @@ const SheetID = '1urPgZhnrZ-6zWFj_bRFzeY41jkKAkzRwcCFy9K4gWD4';
 var aLatexFolder = '1y8qwfeOtjauaFiKNL-l3VoYUTKca6Q-a';
 var aOutputFolder = '1WgOSvBuxg5hekeawPpivVcsWhNhEnx5Z';
 var aBackupFolder = '1vgUDHX4OTfY4ujNiZS14SJ-KyBKlfRXX';
+var aAlignmentFolder = "1DtcwRtwxTTZ7P1IdkQ-KfnygadvqfZQ_";
 
 var aStyleFile = "";
 let cWatermark;
 
 function generateBibleReadings() {
-  movePdfFilesBetweenFolders(aOutputFolder,aBackupFolder);
   aStyleFile = readStyleFile();
   generateTEXFiles("Lists");
+  movePdfFilesBetweenFolders(aOutputFolder,aBackupFolder);
   LatexCompile.processDriveTexFolder(aLatexFolder,aOutputFolder);
+}
+
+function getAlignmentImages()
+{
+  deleteFilesInFolder(aAlignmentFolder,"png");
+  LatexCompile.getFilesFromGithub("alignment",aAlignmentFolder,"png");
 }
 
 function generateBibleReadingsDev()
@@ -44,7 +51,9 @@ function doPost(e) {
   try
   {
     if (e.parameter.action === "generateBibleReadings") {
-      generateBibleReadings();
+      generateBibleReadings()}
+    else if (e.parameter.action === "getAlignmentImages") {
+      getAlignmentImages();
     }
   }
   catch(e)
@@ -74,48 +83,6 @@ function readStyleFile() {
   return content;
 }
 
-function compileTexAndDownloadPdf(filename) {
-  const props = PropertiesService.getScriptProperties();
-  const API_KEY = props.getProperty('API_KEY');
-
-  const compileUrl =
-    'https://api.advicement.io/v1/templates/pub-tex-to-pdf-with-pdflatex-v1/compile';
-
-  const tex = readTexFile(filename);
-  if (!tex) throw new Error(`No TeX content found for ${filename}`);
-
-  // Start compile
-  try {
-    const compileRes = UrlFetchApp.fetch(compileUrl, {
-      method: 'post',
-      contentType: 'application/json',
-      headers: { 'Adv-Security-Token': API_KEY },
-      payload: JSON.stringify({ texFileContent: tex })
-    });
-  }
-  catch (e) {
-    Logger.log(e.message);
-
-    //Add code here to switch to another API_KEY
-    //****************************************** */
-    if (e.message == "The account has exceeded the API calls limit")
-      API_KEY = API_KEY
-  }
-
-  const compileJson = JSON.parse(compileRes.getContentText());
-
-  if (!compileJson.documentStatusUrl) {
-    throw new Error('No status URL returned: ' + compileRes.getContentText());
-  }
-
-  // Wait for PDF
-  waitForPdfAndSave(
-    compileJson.documentStatusUrl,
-    API_KEY,
-    filename
-  );
-}
-
 function readTexFile(filename) {
   const folder = DriveApp.getFolderById(aLatexFolder);
   const files = folder.getFilesByName(filename);
@@ -128,68 +95,18 @@ function readTexFile(filename) {
   return files.next().getBlob().getDataAsString();
 }
 
-function waitForPdfAndSave(statusUrl, apiKey, filename) {
-
-  if (!aOutputFolder) {
-    throw new Error('aOutputFolder is not set');
-  }
-
-  const folder = DriveApp.getFolderById(aOutputFolder);
-  const pdfName = filename.replace(/\.tex$/i, '.pdf');
-
-  for (let i = 0; i < 15; i++) {
-    Utilities.sleep(2000);
-
-    const res = UrlFetchApp.fetch(statusUrl, {
-      headers: { 'Adv-Security-Token': apiKey }
-    });
-
-    const json = JSON.parse(res.getContentText());
-    Logger.log(json);
-
-    if (json.statusCode === 201 && json.documentUrl) {
-
-      const pdfBlob = UrlFetchApp.fetch(json.documentUrl)
-        .getBlob()
-        .setName(pdfName)
-        .setContentType('application/pdf');
-
-      // 🔁 Remove existing PDF with same name (if any)
-      const existing = folder.getFilesByName(pdfName);
-      while (existing.hasNext()) {
-        existing.next().setTrashed(true);
-      }
-
-      folder.createFile(pdfBlob);
-
-      Logger.log(`${pdfName} saved to aLatexFolder`);
-      return;
-    }
-
-    if (json.statusCode === 404) {
-      throw new Error(json.error || 'LaTeX compilation failed');
-    }
-
-    if (json.statusCode === 402) {
-      throw new Error(json.error || 'Limit exceeded');
-    }
-
-  }
-
-  throw new Error(`Timed out waiting for PDF: ${filename}`);
-}
 
 /**
  * Deletes all .tex files in the given Drive folder
  * @param {string} folderId - Google Drive folder ID
  */
-function deleteTexFilesInFolder(folderId) {
+function deleteFilesInFolder(folderId, extension) {
   const folder = DriveApp.getFolderById(folderId);
   const files = folder.getFiles();
 
   while (files.hasNext()) {
     const file = files.next();
-    if (file.getName().toLowerCase().endsWith('.tex')) {
+    if (file.getName().toLowerCase().endsWith(`.${extension}`)) {
       file.setTrashed(true); // safer than delete
     }
   }
@@ -210,32 +127,6 @@ function movePdfFilesBetweenFolders(sourceFolderId, destinationFolderId) {
   }
 }
 
-function compileAllLatexFiles() {
-  if (!aLatexFolder) throw new Error('aLatexFolder is not set');
-
-  const folder = DriveApp.getFolderById(aLatexFolder);
-  const files = folder.getFiles();
-
-  let count = 0;
-
-  while (files.hasNext()) {
-    const file = files.next();
-    const name = file.getName();
-
-    if (name.toLowerCase().endsWith('.tex')) {
-      Logger.log(`Compiling ${name}...`);
-      compileTexAndDownloadPdf(name);
-      count++;
-    }
-  }
-
-  if (count === 0) {
-    Logger.log('No .tex files found.');
-  } else {
-    Logger.log(`Compiled ${count} .tex files successfully.`);
-  }
-}
-
 /**
  * Reads language column combinations from a given tab
  * Column A = langA letter (e.g. "A")
@@ -250,7 +141,7 @@ function generateTEXFiles(tabName) {
   const sheet = ss.getSheetByName(tabName);
   if (!sheet) throw new Error(`Sheet "${tabName}" not found`);
 
-  deleteTexFilesInFolder(aLatexFolder);
+  deleteFilesInFolder(aLatexFolder, "tex");
 
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return;
