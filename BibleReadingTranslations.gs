@@ -1,4 +1,4 @@
-//Version 1.5
+//Version 1.6
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi(); // Get the spreadsheet UI
@@ -6,6 +6,7 @@ function onOpen() {
     .addItem('Generate Bible Reading', 'markLanguageFromActiveTab') // Menu item + function
     .addItem('Generate Selected Bible Readings', 'generateSelectedBibleReadings') // Menu item + function
     .addItem('Generate All Bible Readings', 'generateAllBibleReadings') // Menu item + function
+    .addItem('Get Alignment Images', 'callGetAlignmentImagesAPI') // Menu item + function
     .addToUi();
 }
 
@@ -23,7 +24,6 @@ function markLanguageFromActiveTab() {
     "EA Swahili",
     "Bemba",
     "Português",
-    "SeSotho",
     "IO French",
     "Amharic"
   ];
@@ -109,6 +109,29 @@ function callBibleReadingsAPI() {
   {
     setStatus("");
   }
+}
+
+function callGetAlignmentImagesAPI() {
+    const url = "https://script.google.com/macros/s/AKfycbw1lWaX34ho792GdxQdfz9bN1BeEzPYeX30zhZ2vNr-DQ4jplpWLeYEKoMadQT8L4lm/exec";
+
+    const props = PropertiesService.getScriptProperties();
+    const API_KEY = props.getProperty('API_KEY');
+
+    const payload = {
+      action: "getAlignmentImages",
+      key: API_KEY   // optional security key if you implemented one
+    };
+
+    const options = {
+      method: "post",
+      payload: payload,
+      muteHttpExceptions: true
+    };
+
+    const response = UrlFetchApp.fetch(url, options);
+
+    Logger.log(response.getResponseCode());
+    Logger.log(response.getContentText());
 }
 
 function setStatus(value) {
