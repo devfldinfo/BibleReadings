@@ -1,0 +1,194 @@
+name: Compile LaTeX Files
+
+on:
+  push:
+    paths:
+      - '**/*.tex'
+      - '**/*.Tex'
+      - '**/*.tEx'
+      - '**/*.teX'
+      - '**/*.TEx'
+      - '**/*.tEX'
+      - '**/*.TeX'
+      - '**/*.TEX'
+  pull_request:
+    paths:
+      - '**/*.tex'
+      - '**/*.Tex'
+      - '**/*.tEx'
+      - '**/*.teX'
+      - '**/*.TEx'
+      - '**/*.tEX'
+      - '**/*.TeX'
+      - '**/*.TEX'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      # -------------------------------------------------
+      # Checkout
+      # -------------------------------------------------
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # -------------------------------------------------
+      # Abort unless a .tex file was ADDED
+      # -------------------------------------------------
+      - name: Abort unless a .tex file was added
+        shell: bash
+        run: |
+          set -e
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            exit 0
+          fi
+
+          git config --global core.quotepath false
+          
+          git diff --name-status ${{ github.event.before }} ${{ github.sha }} > changes.txt || true
+
+          if ! grep -E '^A\s+.*\.(tex|Tex|tEx|teX|TEx|tEX|TeX|TEX)$' changes.txt; then
+            echo "No newly added .tex files detected. Exiting."
+            exit 78
+          fi
+
+      # -------------------------------------------------
+      # Cache TeX Live
+      # -------------------------------------------------
+#      - name: Cache TeX Live
+#        uses: actions/cache@v4
+#        with:
+#          path: |
+#            /usr/share/texlive
+#            /var/lib/texmf
+#            ~/.texlive
+#          key: texlive-${{ runner.os }}-v1
+#          restore-keys: |
+#            texlive-${{ runner.os }}-
+      - name: Clear Output folder
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/output
+          rm -rf $GITHUB_WORKSPACE/output/*
+    
+      # -------------------------------------------------
+      # Install LaTeX
+      # -------------------------------------------------
+      - name: Install LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-xetex \
+            latexmk
+
+      # -------------------------------------------------
+      # Copy fonts to LaTeX document directories
+      # -------------------------------------------------
+      - name: Copy Nyala font to LaTeX directories
+        shell: bash
+        run: |
+          set -e
+
+          FONT="$GITHUB_WORKSPACE/.fonts/nyala.ttf"
+
+          if [ ! -f "$FONT" ]; then
+            echo "ERROR: Nyala font not found at $FONT"
+            exit 1
+          fi
+
+          find . -type f -iname "*.tex" -print0 | while IFS= read -r -d '' texfile; do
+            TEXDIR="$(dirname "$texfile")"
+
+            mkdir -p "$TEXDIR/.fonts"
+            cp "$FONT" "$TEXDIR/.fonts/nyala.ttf"
+
+            echo "Copied Nyala font to: $TEXDIR/.fonts/nyala.ttf"
+          done
+
+
+
+
+
+      # -------------------------------------------------
+      # Compile root documents
+      # -------------------------------------------------
+      - name: Compile LaTeX root documents only
+        shell: bash
+        run: |
+          set -e
+          while IFS= read -r -d '' texfile; do
+            if ! grep -qi '\\documentclass' "$texfile"; then
+              continue
+            fi
+
+            latexmk \
+              -cd \
+              -xelatex \
+              -interaction=nonstopmode \
+              -halt-on-error \
+              -outdir=$GITHUB_WORKSPACE/output \
+              "$texfile"
+          done < <(find . -type f -iname "*.tex" -print0)
+
+      # -------------------------------------------------
+      # Cleanup aux files
+      # -------------------------------------------------
+      - name: Delete temporary LaTeX files
+        run: |
+          find . -type f \( \
+            -name "*.aux" -o \
+            -name "*.log" -o \
+            -name "*.lof" -o \
+            -name "*.lot" -o \
+            -name "*.toc" -o \
+            -name "*.bbl" -o \
+            -name "*.blg" -o \
+            -name "*.out" -o \
+            -name "*.synctex.gz" -o \
+            -name "*.fdb_latexmk" -o \
+            -name "*.fls" -o \
+            -name "*.bcf" -o \
+            -name "*.run.xml" \
+          \) -delete
+
+      # -------------------------------------------------
+      # ALWAYS write completion file (final step)
+      # -------------------------------------------------
+ #     - name: Write completion marker
+ #       if: always()
+ #       shell: bash
+ #       run: |
+ #         mkdir -p input
+ #         echo "Completed at $(date -u +%Y-%m-%dT%H:%M:%SZ) commit=${GITHUB_SHA}" > input/completed.txt
+          
+      # -------------------------------------------------
+      # Commit PDFs + completion marker
+      # -------------------------------------------------
+      - name: Auto Commit PDFs
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Auto-compile LaTeX PDFs"
+          file_pattern: |
+            **/*.pdf
+#            input/completed.txt
+
+
+      - name: Mark workflow completed
+        if: always()
+        shell: bash
+        run: |
+          echo "Workflow completed at $(date -u)" > input/completed.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add input/completed.txt
+          git commit -m "Mark workflow completed" || echo "Nothing to commit"
+          git push
