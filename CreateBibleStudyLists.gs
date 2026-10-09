@@ -1,4 +1,4 @@
-//Version 1.8
+//Version 2.0
 //This is the Web App that is called by the Bible Reading Translations sheet
 //When changes are made to this file, manage deployments and create a new version so that the sheet can call the latest code
 //LatexCompile is deployed as a library.
@@ -10,32 +10,43 @@ var aOutputFolder = '1WgOSvBuxg5hekeawPpivVcsWhNhEnx5Z';
 var aBackupFolder = '1vgUDHX4OTfY4ujNiZS14SJ-KyBKlfRXX';
 var aAlignmentFolder = "1DtcwRtwxTTZ7P1IdkQ-KfnygadvqfZQ_";
 
+var GITHUB_TOKEN ="";
+var GITHUB_OWNER = "";
+var GITHUB_REPO = "";
+
 var aStyleFile = "";
+var aStyleFileName = "BibleReadings1.sty"; 
+var applyNumFont = "";
+var aCalToUse = "";
+
 let cWatermark;
 
 function generateBibleReadings() {
-  aStyleFile = readStyleFile();
+  // aStyleFile = readStyleFile();
+  const props = PropertiesService.getScriptProperties();
+  GITHUB_TOKEN = props.getProperty('GITHUB_TOKEN');
+  GITHUB_OWNER = props.getProperty('GITHUB_OWNER');
+  GITHUB_REPO = props.getProperty('GITHUB_REPO');
+
   generateTEXFiles("Lists");
-  movePdfFilesBetweenFolders(aOutputFolder,aBackupFolder);
-  LatexCompile.processDriveTexFolder(aLatexFolder,aOutputFolder);
+  movePdfFilesBetweenFolders(aOutputFolder, aBackupFolder);
+  LatexCompile.processDriveTexFolderWithGitHubConfig(aLatexFolder, aOutputFolder, GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO);
 }
 
-function getAlignmentImages()
-{
-  deleteFilesInFolder(aAlignmentFolder,"png");
-  LatexCompile.getFilesFromGithub("alignment",aAlignmentFolder,"png");
+function getAlignmentImages() {
+  deleteFilesInFolder(aAlignmentFolder, "png");
+  LatexCompile.getFilesFromGithub("alignment", aAlignmentFolder, "png");
 }
 
-function generateBibleReadingsDev()
-{
-  aLatexFolder ="13_s-cavmcu_QFFTIiywkQ_-ySv6TjTGz";
+function generateBibleReadingsDev() {
+  aLatexFolder = "13_s-cavmcu_QFFTIiywkQ_-ySv6TjTGz";
   aOutputFolder = "1d26EBO5xJt6KTfdnwHCgAxgWeQVWJI9I";
   aBackupFolder = "1zwyq6UE4YMKBzedYx3vCKgcW6C574FtS";
 
-  movePdfFilesBetweenFolders(aOutputFolder,aBackupFolder);
-  aStyleFile = readStyleFile();
+  movePdfFilesBetweenFolders(aOutputFolder, aBackupFolder);
+  // aStyleFile = readStyleFile();
   generateTEXFiles("Lists");
-  LatexCompile.processDriveTexFolder(aLatexFolder,aOutputFolder);
+  LatexCompile.processDriveTexFolder(aLatexFolder, aOutputFolder);
 }
 
 function doPost(e) {
@@ -48,38 +59,37 @@ function doPost(e) {
     return ContentService.createTextOutput("Unauthorized");
   }
 
-  try
-  {
+  try {
     if (e.parameter.action === "generateBibleReadings") {
-      generateBibleReadings()}
+      generateBibleReadings()
+    }
     else if (e.parameter.action === "getAlignmentImages") {
       getAlignmentImages();
     }
   }
-  catch(e)
-  {
+  catch (e) {
     return ContentService.createTextOutput(e.message);
   }
 
   return ContentService.createTextOutput("OK");
 }
 
-function readStyleFile() {
+function readStyleFile(afilename) {
   if (!aLatexFolder) {
     throw new Error('aLatexFolder is not set');
   }
 
   const folder = DriveApp.getFolderById(aLatexFolder);
-  const files = folder.getFilesByName('BibleReadings1.sty');
+  const files = folder.getFilesByName(afilename);
 
   if (!files.hasNext()) {
-    throw new Error('BibleReadings1.sty not found in folder');
+    throw new Error(`${afilename} not found in folder`);
   }
 
   const file = files.next();
   const content = file.getBlob().getDataAsString();
 
-  Logger.log('BibleReadings1.sty loaded successfully');
+  Logger.log(`${afilename} loaded successfully`);
   return content;
 }
 
@@ -119,7 +129,7 @@ function movePdfFilesBetweenFolders(sourceFolderId, destinationFolderId) {
 
   while (files.hasNext()) {
     const file = files.next();
-    
+
     if (file.getName().toLowerCase().endsWith('.pdf')) {
       destinationFolder.addFile(file);   // add to destination
       sourceFolder.removeFile(file);     // remove from source
@@ -146,7 +156,7 @@ function generateTEXFiles(tabName) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return;
 
-  const values = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
+  const values = sheet.getRange(2, 1, lastRow - 1, 17).getValues();
 
   for (let i = 0; i < values.length; i++) {
 
@@ -161,7 +171,13 @@ function generateTEXFiles(tabName) {
       endNoteWedB,
       trigger,
       lastRun,
-      largePrint
+      largePrint,
+      tmplangA,
+      tmpLangB,
+      notes,
+      styFile,
+      dontapplyNumFont,
+      calendartouse
     ] = values[i];
 
     // Stop the entire function if column A is blank
@@ -172,6 +188,18 @@ function generateTEXFiles(tabName) {
 
     const langA = columnLetterToIndex_(colA);
     const langB = colB ? columnLetterToIndex_(colB) : -1;
+
+    applyNumFont = dontapplyNumFont;
+    aCalToUse = calendartouse;
+
+    if (styFile)
+    {
+      aStyleFileName = styFile;
+      aStyleFile = readStyleFile(styFile);
+    }
+    else
+      aStyleFile = readStyleFile('BibleReadings1.sty');
+
 
     try {
 
@@ -222,12 +250,12 @@ function visualWidth(str) {
   if (!str) return 0;
 
   const widths = {
-    i:0.5, l:0.5, I:0.6,
-    j:0.6, t:0.7,
-    f:0.7, r:0.7,
-    ' ':0.6,
-    m:1.4, w:1.4,
-    M:1.5, W:1.5
+    i: 0.5, l: 0.5, I: 0.6,
+    j: 0.6, t: 0.7,
+    f: 0.7, r: 0.7,
+    ' ': 0.6,
+    m: 1.4, w: 1.4,
+    M: 1.5, W: 1.5
   };
 
   let w = 0;
@@ -381,20 +409,20 @@ function generateBRList(langA, langB, sunAMargin, sunBMargin, wedAMargin, wedBMa
 
   /* === BOOK LANGUAGE TOGGLE (NEW) === */
   let useLangBForBook = true;
-/*
-  const margins = calculateMargins(rows, col, mapA, mapB, bilingual);
-
-var aSunAMargin = margins.sunA;
-var aSunBMargin = margins.sunB;
-var aWedAMargin = margins.wedA;
-var aWedBMargin = margins.wedB;
-
-
-  var aSunAMargin = repeatX(sunAMargin);
-  var aSunBMargin = repeatX(sunBMargin);
-  var aWedAMargin = repeatX(wedAMargin);
-  var aWedBMargin = repeatX(wedBMargin);
-*/
+  /*
+    const margins = calculateMargins(rows, col, mapA, mapB, bilingual);
+  
+  var aSunAMargin = margins.sunA;
+  var aSunBMargin = margins.sunB;
+  var aWedAMargin = margins.wedA;
+  var aWedBMargin = margins.wedB;
+  
+  
+    var aSunAMargin = repeatX(sunAMargin);
+    var aSunBMargin = repeatX(sunBMargin);
+    var aWedAMargin = repeatX(wedAMargin);
+    var aWedBMargin = repeatX(wedBMargin);
+  */
   var aSunAMargin = sunAMargin;
   var aSunBMargin = sunBMargin;
   var aWedAMargin = wedAMargin;
@@ -407,7 +435,7 @@ var aWedBMargin = margins.wedB;
   // ===== DOCUMENT HEADER =====
   latex += `
 \\documentclass[english]{article}
-\\usepackage{BibleReadings1}
+\\usepackage{${getFilenameWithoutExtension(aStyleFileName)}}
 ${aWatermark}
 \\SunAColWidths{}{}{}{${aSunAMargin}}
 \\SunBColWidths{}{}{}{${aSunBMargin}}
@@ -432,8 +460,8 @@ ${aWatermark}
     if (!(date instanceof Date)) return;
 
     const dayOfWeek = date.getDay();
-    const day = Utilities.formatDate(date, Session.getScriptTimeZone(), 'd');
-    const month = Utilities.formatDate(date, Session.getScriptTimeZone(), 'MMM');
+    var day = Utilities.formatDate(date, Session.getScriptTimeZone(), 'd');
+    var month = Utilities.formatDate(date, Session.getScriptTimeZone(), 'MMM');
     year = Utilities.formatDate(date, Session.getScriptTimeZone(), 'yyyy');
 
     const topicKey = (row[col.topic] || '').toString().trim();
@@ -444,6 +472,13 @@ ${aWatermark}
     const refsTranslated = TranslateReferenceBooks(refsRaw, mapA);
     const refs = ReferenceLatexText(refsTranslated);
 
+    if(aCalToUse){
+      var result = gregorianToEthiopian(day,Utilities.formatDate(date, Session.getScriptTimeZone(), 'M'),year);
+      day = String(result.day);
+      month = getMonthName(result.month);
+      year = String(result.year);
+//      Logger.log(`${day},${month}, ${year}`);
+  }
 
     const monthA = PrepareLatexText(mapA[month] || month);
     const monthB = bilingual
@@ -504,10 +539,10 @@ ${aWatermark}
         const bookOut = sunBookLangToggle ? bookB : bookA;
         sunBookLangToggle = !sunBookLangToggle;
 
-        latex += `\\SunChapter{\\nf{${day}}}{${monthOut}}{${bookOut}}{${chapter}}\n`;
+        latex += `\\SunChapter{${PlainNumberFontText(day)}}{${monthOut}}{${bookOut}}{${chapter}}\n`;
 
       } else {
-        latex += `\\SunTopic{\\nf{${day}}}{${monthOut}}{${topicA}}{${topicB}}{${refs}}\n`;
+        latex += `\\SunTopic{${PlainNumberFontText(day)}}{${monthOut}}{${topicA}}{${topicB}}{${refs}}\n`;
       }
     }
 
@@ -555,10 +590,10 @@ ${aWatermark}
         const bookOut = wedBookLangToggle ? bookB : bookA;
         wedBookLangToggle = !wedBookLangToggle;
 
-        latex += `\\WedChapter{\\nf{${day}}}{${monthOut}}{${bookOut}}{${chapter}}{${topicA}}{${topicB}}\n`;
+        latex += `\\WedChapter{${PlainNumberFontText(day)}}{${monthOut}}{${bookOut}}{${chapter}}{${topicA}}{${topicB}}\n`;
 
       } else {
-        latex += `\\WedTopic{\\nf{${day}}}{${monthOut}}{${topicA}}{${topicB}}{${refs}}\n`;
+        latex += `\\WedTopic{${PlainNumberFontText(day)}}{${monthOut}}{${topicA}}{${topicB}}{${refs}}\n`;
       }
     }
 
@@ -566,9 +601,8 @@ ${aWatermark}
 
 
   // ===== DOCUMENT FOOTER =====
-  if (!largePrint)
-  {
-  latex += `
+  if (!largePrint) {
+    latex += `
 }
 \\renewcommand{\\EndNoteWedB}{\\btf{${endNoteWedB}}}
 \\LargePage
@@ -580,9 +614,8 @@ ${aWatermark}
 \\EndOutput
 `.trim() + '\n';
   }
-  else
-  {
-  latex += `
+  else {
+    latex += `
 }
 \\renewcommand{\\EndNoteWedB}{\\btf{${endNoteWedB}}}
 \\SmallPage
@@ -603,16 +636,16 @@ ${aWatermark}
   const langBName =
     bilingual ? (langNames[langB] || `Lang${langB}`) : null;
 
-const largeSuffix = largePrint ? "_Large" : "";
+  const largeSuffix = largePrint ? "_Large" : "";
 
-const outFileName =
-  bilingual
-    ? `${year}BR_${langAName}_${langBName}${largeSuffix}.tex`
-    : `${year}BR_${langAName}${largeSuffix}.tex`;
-    
+  const outFileName =
+    bilingual
+      ? `${year}BR_${langAName}_${langBName}${largeSuffix}.tex`
+      : `${year}BR_${langAName}${largeSuffix}.tex`;
+
   const files = folder.getFilesByName(outFileName);
 
-  latex = `\\begin{filecontents*}{BibleReadings1.sty}
+  latex = `\\begin{filecontents*}{${aStyleFileName}}
 ${aStyleFile}
 \\end{filecontents*}
 ${latex}`;
@@ -675,13 +708,20 @@ function NumberCommandText(srcText, cmd, altcmd) {
 }
 
 function BoldNumberFontText(srcText) { return NumberCommandText(srcText, "\\bnf", ""); }
-function PlainNumberFontText(srcText) { return NumberCommandText(srcText, "\\nf", ""); }
+
+function PlainNumberFontText(srcText) {
+  if (applyNumFont)
+    return NumberCommandText(srcText, "", "");
+  else
+    return NumberCommandText(srcText, "\\nf", "");
+}
+
 function isDigit(ch) { return /^[0-9]$/.test(ch); }
 function isNumeric(value) { return !isNaN(value - parseFloat(value)); }
 
 function ConvertToLatexText(srcText) {
   const replacements = {
-    "\\": "\\textbackslash ",
+    //"\\": "\\textbackslash ",
     " ": "\\ ",
     [String.fromCharCode(145)]: "\\lq ",
     [String.fromCharCode(146)]: "\\rq ",
@@ -698,7 +738,7 @@ function ConvertToLatexText(srcText) {
     "_": "\\_",
     "{[": "",
     "]}": "",
-    "{": "\\ulineB{",
+    // "{": "\\ulineB{",
     // "~": "\\~",
     "^": "\\^{}",
 
@@ -810,4 +850,150 @@ function getFolderByPath_(path) {
   }
 
   return folder;
+}
+
+
+function gregorianToEthiopian(day, month, year) {
+  // Create the Gregorian date in UTC to avoid timezone shifting
+  var A51 = Math.floor(
+    Date.UTC(year, month - 1, day) / 86400000
+  ) + 25569;
+
+  var x = A51 - 2812;
+
+  var leapCorrection =
+    Math.floor(Math.floor(x / 366) / 4);
+
+  var dayOfYear =
+    x - (
+      Math.floor(x / 366) * 365 +
+      leapCorrection
+    );
+
+  var leapYear =
+    Math.floor(x / 365) % 4 === 0;
+
+  // Ethiopian day
+  var ethDay;
+
+  if (dayOfYear >= 365) {
+    ethDay =
+      (
+        29 +
+        (dayOfYear % 30) +
+        1 -
+        5 -
+        (leapYear ? 1 : 0)
+      ) % 30 + 1;
+  } else {
+    ethDay = (dayOfYear % 30) + 1;
+  }
+
+  // Ethiopian month
+  var ethMonth;
+
+  if (
+    dayOfYear > 359 &&
+    dayOfYear < 365 + (leapYear ? 1 : 0)
+  ) {
+    ethMonth = 13;
+
+  } else if (
+    dayOfYear > 365 + (leapYear ? 1 : 0)
+  ) {
+    ethMonth =
+      Math.floor(
+        (
+          dayOfYear -
+          365 -
+          (leapYear ? 1 : 0)
+        ) / 30
+      ) + 1;
+
+  } else {
+    ethMonth =
+      Math.floor(dayOfYear / 30) + 1;
+  }
+
+  // Ethiopian year
+  var ethYear =
+    1900 +
+    Math.floor(
+      (A51 - 2812 - leapCorrection) / 365
+    );
+
+ return {
+    day: ethDay,
+    month: ethMonth,
+    year: ethYear
+  };
+ 
+}
+
+
+
+function gregorianToEthiopian1(day, month, year) {
+  // Create dates in UTC to avoid daylight-saving/timezone effects.
+  var date = new Date(Date.UTC(year, month - 1, day));
+
+  // Ethiopian New Year is:
+  // September 11 normally
+  // September 12 when the following Gregorian year is a leap year.
+  var newYearDay = isGregorianLeapYear_(year + 1) ? 12 : 11;
+  var newYear = new Date(Date.UTC(year, 8, newYearDay));
+
+  var ethYear;
+
+  // Date is in the Ethiopian year that starts in this Gregorian year
+  if (date >= newYear) {
+    ethYear = year - 7;
+  } else {
+    // Date is in the Ethiopian year that started in the previous
+    // Gregorian year.
+    ethYear = year - 8;
+
+    newYearDay = isGregorianLeapYear_(year) ? 12 : 11;
+    newYear = new Date(Date.UTC(year - 1, 8, newYearDay));
+  }
+
+  // Number of days since 1 Meskerem
+  var daysSinceNewYear =
+    Math.floor((date - newYear) / 86400000);
+
+  var ethMonth;
+  var ethDay;
+
+  if (daysSinceNewYear < 360) {
+    // Months 1–12: 30 days each
+    ethMonth = Math.floor(daysSinceNewYear / 30) + 1;
+    ethDay = (daysSinceNewYear % 30) + 1;
+  } else {
+    // Month 13: Pagume
+    ethMonth = 13;
+    ethDay = daysSinceNewYear - 360 + 1;
+  }
+
+  return {
+    day: ethDay,
+    month: ethMonth,
+    year: ethYear
+  };
+}
+
+
+function isGregorianLeapYear_(year) {
+  return year % 4 === 0 &&
+         (year % 100 !== 0 || year % 400 === 0);
+}
+
+function getMonthName(monthNumber) {
+  return Utilities.formatDate(
+    new Date(2000, monthNumber - 1, 1),
+    Session.getScriptTimeZone(),
+    'MMM'
+  );
+}
+
+function getFilenameWithoutExtension(filename) {
+  return filename.replace(/\.[^/.]+$/, '');
 }
