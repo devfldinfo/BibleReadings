@@ -1,4 +1,4 @@
-//Version 1.2
+//Version 1.3
 
 /**
  * ============================
@@ -10,7 +10,7 @@
 //var aBackupFolder = '1vgUDHX4OTfY4ujNiZS14SJ-KyBKlfRXX';
 
 
-const CONFIG = (() => {
+var CONFIG = (() => {
   const props = PropertiesService.getScriptProperties();
   return {
     GITHUB_TOKEN: props.getProperty('GITHUB_TOKEN'),
@@ -23,6 +23,21 @@ const CONFIG = (() => {
     MAX_POLLS: 30 // ~5 minutes
   };
 })();
+
+//let CONFIG = null;
+
+function initConfig(customConfig) {
+  CONFIG = {
+    GITHUB_TOKEN: customConfig.GITHUB_TOKEN,
+    GITHUB_OWNER: customConfig.GITHUB_OWNER,
+    GITHUB_REPO: customConfig.GITHUB_REPO,
+    GITHUB_BRANCH: customConfig.GITHUB_BRANCH || 'main',
+    INPUT_ROOT: 'input',
+    OUTPUT_ROOT: 'output',
+    POLL_INTERVAL_MS: 10000,
+    MAX_POLLS: 30
+  };
+}
 
 function test()
 {
@@ -301,8 +316,7 @@ function resetGithubInputFolder() {
 }
 
 function githubApiBase() {
-  const p = PropertiesService.getScriptProperties();
-  return `https://api.github.com/repos/${p.getProperty("GITHUB_OWNER")}/${p.getProperty("GITHUB_REPO")}`;
+  return `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}`;
 }
 
 function githubFetch(url, token, method, payload) {
@@ -322,6 +336,31 @@ function githubFetch(url, token, method, payload) {
     throw new Error(r.getContentText());
   }
   return r.getContentText();
+}
+
+function processDriveTexFolderWithGitHubConfig(
+  DRIVE_INPUT_FOLDER_ID,
+  DRIVE_OUTPUT_FOLDER_ID,
+  GITHUB_TOKEN,
+  GITHUB_OWNER,
+  GITHUB_REPO
+) {
+  if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
+    throw new Error(
+      "GITHUB_TOKEN, GITHUB_OWNER, and GITHUB_REPO must all be provided."
+    );
+  }
+
+  initConfig({
+    GITHUB_TOKEN: GITHUB_TOKEN,
+    GITHUB_OWNER: GITHUB_OWNER,
+    GITHUB_REPO: GITHUB_REPO
+  });
+
+  processDriveTexFolder(
+    DRIVE_INPUT_FOLDER_ID,
+    DRIVE_OUTPUT_FOLDER_ID
+  );
 }
 
 /************************************** */
@@ -490,3 +529,4 @@ function downloadGithubRepoAsZip() {
 
   return zipBlob;
 }
+
