@@ -1,4 +1,4 @@
-//Version 1.6
+//Version 1.8
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi(); // Get the spreadsheet UI
@@ -61,8 +61,8 @@ function generateAllBibleReadings() {
   const activeSheet = ss.getActiveSheet().getName();
   const listsSheet = ss.getSheetByName("Lists");
 
-  const lastRow = listsSheet.getLastRow();
-  listsSheet.getRange(2, 9, lastRow - 1).setValue("x");
+//  const lastRow = listsSheet.getLastRow();
+  listsSheet.getRange(2, 9, 20).setValue("x");
 
   SpreadsheetApp.flush();
 
