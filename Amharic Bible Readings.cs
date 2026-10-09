@@ -1,3 +1,7 @@
+//DISCONTINUED. AMHARIC BIBLE READINGS ARE DONE WITH THE OTHER BIBLE READINGS
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 /*==== CONSTANTS ====*/
 const FirstRefRow = 200;
 const FirstTranslationRow = 50;
