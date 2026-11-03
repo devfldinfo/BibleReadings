@@ -1,0 +1,732 @@
+\begin{filecontents*}{BibleReadings1.sty}
+\ProvidesPackage{BibleReadings1}
+\usepackage{graphicx}
+\usepackage{times}
+\usepackage{color}
+\newcommand{\border}[0]{8mm}
+\newcommand{\PrintWaterMark}{}
+\newcommand{\WaterMark}[0]{\renewcommand{\PrintWaterMark}{\sc@wm@print{\sc@watermark}}}
+\newlength\sc@wm@fontsize
+\def\sc@wm@angle{45}
+\def\sc@wm@colormodel{[gray]}
+\def\sc@wm@colorspecs{0.85}
+\def\sc@wm@scale{0.7}
+\setlength\sc@wm@fontsize{5cm}
+\newcommand\sc@watermark{%
+  \setlength{\@tempdimb}{8cm}%.5\paperwidth}%
+  \setlength{\@tempdimc}{15cm}%-.5\paperheight}%
+  \put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){%
+    \makebox(0,0){\rotatebox{\sc@wm@angle}{%
+        \scalebox{\sc@wm@scale}{%
+          \expandafter\expandafter\expandafter\textcolor
+          \expandafter\sc@wm@colormodel\expandafter{\sc@wm@colorspecs}
+{%
+            \fontsize{\sc@wm@fontsize}{1.2\sc@wm@fontsize}
+            \selectfont
+            DRAFT}}}}}}
+\newcommand\sc@wm@print[1]{%
+  \setbox\@tempboxa\vbox to \z@{%
+    \vskip -1in \moveleft 1in \vbox{%
+      \hbox to \z@{%
+        #1\hss}}\vss}
+  \dp\@tempboxa\z@
+  \box\@tempboxa}
+
+\newcommand{\SmallPage}[0]{
+\newcommand{\oneSideBoxWidth}[0]{273mm}
+\newcommand{\BoxHeight}[0]{186mm} %132*2=264+16=280+16=296
+\newcommand{\SunWidth}[0]{96mm}
+\newcommand{\WedWidth}[0]{153mm} %110+68=178+16=194+16=210
+\newcommand{\WorkingPageWidth}[0]{273mm} %132*2=264+16=280+16=296
+\usepackage[
+	paperwidth=297mm,
+	paperheight=210mm,
+	top=12mm,
+	bottom=12mm,
+	left=12mm,
+	right=12mm,
+	nofoot, footskip=0pt,footnotesep=1pt]
+{geometry}
+}
+\newcommand{\LargePage}[0]{
+\newcommand{\oneSideBoxWidth}[0]{198mm}
+\newcommand{\BoxHeight}[0]{136mm} %132*2=264+16=280+16=296
+\newcommand{\SunWidth}[0]{72mm}
+\newcommand{\WedWidth}[0]{114mm} %110+68=178+16=194+16=210
+\newcommand{\WorkingPageWidth}[0]{198mm} %132*2=264+16=280+16=296
+\usepackage[
+	paperwidth=210mm,
+	paperheight=297mm,
+	top=6mm,
+	bottom=6mm,
+	left=6mm,
+	right=6mm,
+	nofoot, footskip=0pt,footnotesep=1pt]
+{geometry}
+}
+
+% Renew these commands
+\newcommand{\SunA}[0]{}
+\newcommand{\SunB}[0]{}
+\newcommand{\WedA}[0]{}
+\newcommand{\WedB}[0]{}
+\newcommand{\EndNoteWedA}{}
+\newcommand{\EndNoteWedB}{}
+
+\newcommand{\SunTopicDim}[0]{}
+		
+\newcommand{\SelectMainFont}[0]{%
+%\usefont{T1}{fds}{m}{n}
+%\usefont{T1}{pag}{m}{n}
+\usefont{T1}{phv}{m}{n}
+}
+\newcommand{\mf}[0]{\SelectMainFont}
+
+\newcommand{\SelectNumberFont}[0]{%
+%\usefont{T1}{fds}{m}{n}
+\usefont{T1}{pag}{m}{n}
+}
+\newcommand{\SelectBoldNumberFont}[0]{%
+%\usefont{T1}{fds}{b}{n}
+\usefont{T1}{pag}{b}{n}
+}
+
+%\newbox\testColWidth
+
+\newdimen\SunADateDayDim
+\newdimen\SunADateMonthDim
+\newdimen\SunABookDim
+\newdimen\SunATopicDim
+\newdimen\SunAChapterDim
+
+\newcommand{\SunAColWidths}[4]{
+\SelectMainFont
+\UpdateDimMeasure{\SunADateDayDim}{\hbox{#1}}
+\UpdateDimMeasure{\SunADateMonthDim}{\hbox{#2}}
+\UpdateDimMeasure{\SunABookDim }{\hbox{#3}}
+\UpdateDimMeasure{\SunATopicDim}{\hbox{\textbf{#4}}}
+}
+
+\newdimen\SunBDateDayDim
+\newdimen\SunBDateMonthDim
+\newdimen\SunBBookDim
+\newdimen\SunBChapterDim
+\newdimen\SunBTopicDim
+
+\newcommand{\SunBColWidths}[4]{
+\SelectMainFont
+\UpdateDimMeasure{\SunBDateDayDim}{\hbox{#1}}
+\UpdateDimMeasure{\SunBDateMonthDim}{\hbox{#2}}
+\UpdateDimMeasure{\SunBBookDim }{\hbox{#3}}
+\UpdateDimMeasure{\SunBTopicDim}{\hbox{\textbf{#4}}}
+}
+\newdimen\SunTopicDim
+
+\newcommand{\setSunATopicCalcChapterDim}[0]{
+\SunTopicDim = \SunATopicDim
+\SunAChapterDim=\SunTopicDim
+\advance \SunAChapterDim by -\SunABookDim
+\advance \SunAChapterDim by -0.5\padWidth
+}
+
+\newcommand{\setSunBTopicCalcChapterDim}[0]{
+\SunTopicDim = \SunBTopicDim
+\SunBChapterDim=\SunTopicDim
+\advance \SunBChapterDim by -\SunBBookDim
+\advance \SunBChapterDim by -0.5\padWidth
+}
+
+\newdimen\WedADateDayDim
+\newdimen\WedADateMonthDim
+\newdimen\WedABookDim
+\newdimen\WedAChapterDim
+\newdimen\WedAChapterTopicDim
+
+\newcommand{\WedAColWidths}[5]{
+\SelectMainFont
+\UpdateDimMeasure{\WedADateDayDim}{\hbox{#1}}
+\UpdateDimMeasure{\WedADateMonthDim}{\hbox{#2}}
+\UpdateDimMeasure{\WedABookDim}{\hbox{#3}}
+\UpdateDimMeasure{\WedAChapterDim}{\hbox{#4}}
+\UpdateDimMeasure{\WedAChapterTopicDim}{\hbox{#5}}
+}
+\newdimen\WedBDateDayDim
+\newdimen\WedBDateMonthDim
+\newdimen\WedBBookDim
+\newdimen\WedBChapterDim
+\newdimen\WedBChapterTopicDim
+
+\newcommand{\WedBColWidths}[5]{
+\SelectMainFont
+\UpdateDimMeasure{\WedBDateDayDim}{\hbox{#1}}
+\UpdateDimMeasure{\WedBDateMonthDim}{\hbox{#2}}
+\UpdateDimMeasure{\WedBBookDim}{\hbox{#3}}
+\UpdateDimMeasure{\WedBChapterDim}{\hbox{#4}}
+\UpdateDimMeasure{\WedBChapterTopicDim}{\hbox{#5}}
+}
+
+\newdimen\WedTopicDim
+\newdimen\WedATopicDim
+\newdimen\WedBTopicDim
+\newdimen\WedChapterTopicDim
+
+\newcommand{\calcWedATopicDim}[0]{
+\WedChapterTopicDim = \WedAChapterTopicDim
+\WedTopicDim =\WedAChapterTopicDim
+\advance \WedTopicDim by \WedABookChapterDim
+%\advance \WedTopicDim by 1\padWidth
+\WedATopicDim =\WedTopicDim
+}
+\newcommand{\calcWedBTopicDim}[0]{
+\WedChapterTopicDim = \WedBChapterTopicDim
+\WedTopicDim =\WedBChapterTopicDim
+\advance \WedTopicDim by \WedBBookChapterDim
+%\advance \WedTopicDim by 2\padWidth
+\WedBTopicDim =\WedTopicDim
+}
+
+\newbox\boxToLimit
+\newbox\widthLimit
+\newbox\heightLimit
+\newbox\resultbox
+\def\smash#1{{\setbox0=\hbox{#1}\dp0=0pt\ht0=0pt\wd0=0pt\box0\relax}}
+
+\newcommand{\frameWidth}[0]{0pt}
+\newcommand{\framedBox}[1]{\hbox{#1}}
+
+\newcommand{\debug}[0]{%
+%\renewcommand{\frameWidth}{1pt}
+\renewcommand{\framedBox}[1]{\fbox{##1}}%
+}
+
+\newcommand{\alignRight}[2]{%
+{\setbox\MeasureBox=#1\relax%
+\dimen0=#2%
+\advance\dimen0 by -\wd\MeasureBox%
+\hskip \dimen0\box\MeasureBox}%
+}
+
+\newcommand{\limitBoxSizeResultBox}[3]{%
+\setbox\boxToLimit=\hbox{#3}%
+\setbox\widthLimit=\hbox{\resizebox*{#1}{!}{\copy\boxToLimit}}%
+\setbox\heightLimit=\hbox{\resizebox*{!}{#2}{\box\boxToLimit}}%
+\ifdim\wd\heightLimit<\wd\widthLimit%
+\setbox\resultbox=\box\heightLimit%
+\else%
+\setbox\resultbox=\box\widthLimit\fi%
+}
+
+\newcommand{\limitBoxSizeFTop}[3]{%
+\limitBoxSizeResultBox{#1}{#2}{#3}%
+\hbox{\smash{%\lower\dp\resultbox
+\box\resultbox}}%
+\framedBox{\rule{\frameWidth}{#2}%
+\rule{#1}{\frameWidth}}%
+}
+\newcommand{\limitBoxSizeBottomRaised}[3]{%
+\limitBoxSizeResultBox{#1}{#2}{#3}%
+\hbox{\smash{\lower\ht\resultbox\hbox{\raise#2
+\box\resultbox}}}%
+\framedBox{\rule{\frameWidth}{#2}%
+\rule{#1}{\frameWidth}}%
+}
+\newcommand{\limitBoxSizeBottomRaisedRight}[3]{%
+\limitBoxSizeResultBox{#1}{#2}{#3}%
+\hbox{\smash{\lower\ht\resultbox\hbox{\raise#2\hbox{%
+\alignRight{\box\resultbox}{#1}}}}}%
+\framedBox{\rule{\frameWidth}{#2}%
+\rule{#1}{\frameWidth}}%
+}
+
+\newcommand{\limitBoxSizeFBottom}[3]{%
+\limitBoxSizeResultBox{#1}{#2}{#3}%
+\hbox{\smash{\raise\ht\resultbox\box\resultbox}}%
+\framedBox{\rule{\frameWidth}{#2}%
+\rule{#1}{\frameWidth}}%
+}
+
+\newcommand{\limitBoxSizeBottomRight}[3]{%
+\limitBoxSizeResultBox{#1}{#2}{#3}%
+\hbox{\smash{%
+\raise\ht\resultbox\hbox{\alignRight{\box\resultbox}{#1}}%
+}}%
+\framedBox{\rule{\frameWidth}{#2}%
+\rule{#1}{\frameWidth}}%
+}
+
+\newcommand{\limitBoxSizeTop}[3]{%
+\limitBoxSizeFTop{#1}{#2}{#3}%
+%\limitBoxSizeResultBox{#1}{#2}{#3}%
+%\hbox{{\raise\dp\resultbox\box\resultbox}}%
+}
+
+\newcommand{\limitBoxSizeBottom}[3]{%
+\limitBoxSizeFBottom{#1}{#2}{#3}%
+%\limitBoxSizeResultBox{#1}{#2}{#3}%
+%\hbox{\lower\ht\resultbox\box\resultbox}
+}
+
+\newcommand{\padWidth}[0]{1mm}
+\newcommand{\pad}[0]{@{\hspace{\padWidth}}}
+\newcommand{\padSkip}[0]{\hskip \padWidth}
+\newcommand{\negpadSkip}[0]{\hskip -1\padWidth}
+\newcommand{\nopad}[0]{@{}}
+\newcommand{\nobreakhyphen}[0]{\nobreak\hbox{-}\nobreak}
+\newcommand{\nobreakendash}[0]{\nobreak\hbox{--}\nobreak}
+\newcommand{\nobreakrefrange}[0]{\nobreakhyphen}
+%\textendash\nobreak}
+\newcommand{\nf}[1]{\SelectNumberFont#1\SelectMainFont}
+\newcommand{\tf}[1]{\SelectMainFont#1}%\SelectMainFont}
+\newcommand{\bnf}[1]{\SelectBoldNumberFont#1\SelectMainFont\bfseries}
+\newcommand{\btf}[1]{\SelectMainFont\bfseries#1}%\SelectMainFont}
+
+\newcommand{\enDashSep}[0]{%
+\discretionary{}{}{\hbox{\hspace{.6ex}\textendash\hspace{.6ex}}}}
+
+\newcommand{\backslashsep}[0]{%
+\discretionary{}{}{\hbox{\hspace{.6ex}\textbackslash\hspace{.6ex}}}}
+
+\newcommand{\tstrut}[0]{\rule{0mm}{1.9ex}}
+\newcommand{\bstrut}[0]{\rule[-0.4ex]{0mm}{1ex}}
+
+\newdimen\WedABookChapterDim
+\newdimen\WedBBookChapterDim
+\newbox\MeasureBox
+\WedABookChapterDim = 5mm
+\WedBBookChapterDim = 5mm
+
+\newcount\MtMode
+\newcommand{\measureModeA}{\MtMode=1}
+\newcommand{\measureModeB}{\MtMode=2}
+\newcommand{\typesetModeA}{\MtMode=3}
+\newcommand{\typesetModeB}{\MtMode=4}
+
+\newcommand{\UpdateDimMeasure}[2]{ % dim, hbox
+\setbox\MeasureBox=#2%
+\ifdim\wd\MeasureBox >#1%
+#1=\wd\MeasureBox%
+\fi}
+
+
+\newcommand{\WedChapterTypeset}[6]{
+\raggedleft\tstrut#1&\raggedright\mf#2&\mf#3\hfill#4\bstrut&%
+\begin{minipage}[t]{\WedChapterTopicDim}\raggedright\mf#5%
+\setbox\MeasureBox=\hbox{#6}%
+\ifdim\wd\MeasureBox>0pt\backslashsep%
+\mf#6\fi\bstrut\end{minipage}%
+\\ \hline
+}
+
+\newcommand{\WedChapterMeasureA}[6]{%
+\SelectMainFont%
+\UpdateDimMeasure{\WedADateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\WedADateMonthDim}{\hbox{\mf#2}}
+\UpdateDimMeasure{\WedABookChapterDim}{\hbox{\mf#3\hspace{0.6ex}#4}}
+}
+
+\newcommand{\WedChapterMeasureB}[6]{
+\UpdateDimMeasure{\WedBDateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\WedBDateMonthDim}{\hbox{\mf#2}}
+\UpdateDimMeasure{\WedBBookChapterDim}{\hbox{\mf#3\hspace{0.6ex}#4}}
+}
+
+\newcommand{\mtModeNameTypesetMeasureAB}[0]{%
+\ifcase\MtMode\or MeasureA\or MeasureB\or Typeset\or Typeset\fi}
+
+\newcommand{\mtModeNameTypesetMeasure}[0]{%
+\ifcase\MtMode\or Measure\or Measure\or Typeset\or Typeset\fi}
+
+\newcommand{\WedChapter}[6]{%
+\csname WedChapter\mtModeNameTypesetMeasureAB\endcsname{#1}{#2}{#3}{#4}{#5}{#6}}
+
+\newcommand{\WedTopicMeasureA}[5]{
+\UpdateDimMeasure{\WedADateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\WedADateMonthDim}{\hbox{\mf#2}}
+}
+\newcommand{\WedTopicMeasureB}[5]{
+\UpdateDimMeasure{\WedBDateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\WedBDateMonthDim}{\hbox{\mf#2}}
+}
+
+\newcommand{\WedTopicTypeset}[5]{
+\raggedleft\tstrut#1&\raggedright\mf#2&\multicolumn{2}{%
+\nopad p{\WedTopicDim} \nopad|}{\raggedright\mf\textbf{#3%
+\setbox\MeasureBox=\hbox{#4}%
+\ifdim\wd\MeasureBox>0pt\enDashSep%
+#4\else\fi} \penalty-20#5\bstrut} \\ \hline
+}
+
+
+\newcommand{\WedTopic}[5]{%
+\csname WedTopic\mtModeNameTypesetMeasureAB\endcsname{#1}{#2}{#3}{#4}{#5}}
+
+\newcommand{\WedListHTypeset}[1]{%
+\multicolumn{4}{|c|}{\mf\LARGE\textbf{#1\tstrut}} \\ \hline}
+
+\newcommand{\WedListHMeasure}[1]{}
+
+\newcommand{\WedListH}[1]{%
+\csname WedListH\mtModeNameTypesetMeasure\endcsname{#1}}
+
+\newcommand{\WedSubListHTypeset}[1]{%
+\multicolumn{4}{|c|}{\mf\large\textbf{#1\tstrut}}\\ \hline}
+
+\newcommand{\WedSubListHMeasure}[1]{}
+
+\newcommand{\WedListSubH}[1]{%
+\csname WedSubListH\mtModeNameTypesetMeasure\endcsname{#1}}
+
+\newcommand{\StartWedATypeset}[0]{%
+\PrintWaterMark%
+\PackageWarning{WedA}{StartTypeset}%
+\typesetModeA%
+\calcWedATopicDim%
+\begin{tabular}
+{|\pad p{\WedADateDayDim} \pad p{\WedADateMonthDim} \pad | \pad p{\WedABookChapterDim} \pad | \pad p{\WedAChapterTopicDim} \pad| }\hline%
+}
+
+\newcommand{\StartWedBTypeset}[0]{%
+\PrintWaterMark%
+\PackageWarning{WedB}{StartTypeset}%
+\typesetModeB%
+\calcWedBTopicDim%
+\begin{tabular}
+{|\pad p{\WedBDateDayDim} \pad p{\WedBDateMonthDim} \pad | \pad p{\WedBBookChapterDim} \pad | \pad p{\WedBChapterTopicDim} \pad| }\hline%
+}
+
+\newcommand{\EndWed}[0]{\end{tabular}}
+
+\newcommand{\StartSunA}{%
+\PrintWaterMark%
+\typesetModeA%
+\setSunATopicCalcChapterDim%
+\begin{tabular}
+{|\pad p{\SunADateDayDim} \pad p{\SunADateMonthDim} \pad |  \pad p{\SunABookDim}%
+\pad p{\SunAChapterDim} \pad| }\hline}
+
+\newcommand{\StartSunB}{%
+\PrintWaterMark%
+\typesetModeB%
+\setSunBTopicCalcChapterDim%
+\begin{tabular}
+{|\pad p{\SunBDateDayDim} \pad p{\SunBDateMonthDim} \pad |  \pad p{\SunBBookDim}%
+\pad p{\SunBChapterDim} \pad| }\hline}
+
+\newcommand{\EndSun}[0]{\end{tabular}}
+
+\newcommand{\SunListHTypeset}[1]{%
+\multicolumn{4}{|c|}{\mf\LARGE\textbf{#1}\tstrut} \\ \hline}
+
+\newcommand{\SunListHMeasure}[1]{}
+
+\newcommand{\SunListH}[1]{%
+\csname SunListH\mtModeNameTypesetMeasure\endcsname{#1}}
+
+\newcommand{\SunListSubHTypeset}[1]{%
+\multicolumn{4}{|c|}{\mf\large\textbf{#1\tstrut}}\\ \hline}
+
+\newcommand{\SunListSubHMeasure}[1]{}
+
+\newcommand{\SunListSubH}[1]{%
+\csname SunListSubH\mtModeNameTypesetMeasure\endcsname{#1}}
+
+\newcommand{\SunTopicTypeset}[5]{%
+\mf\tstrut\raggedleft#1&\mf\raggedright#2&\multicolumn{2}{% 
+\nopad p{\SunTopicDim}  |}{\raggedright\mf\textbf{#3\setbox\MeasureBox=\hbox{#4}%
+\ifdim\wd\MeasureBox>0pt\enDashSep#4\fi} \penalty-20#5\bstrut} \\ \hline}
+
+\newcommand{\SunTopicMeasureA}[5]{%
+\UpdateDimMeasure{\SunADateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\SunADateMonthDim}{\hbox{\mf#2}}
+}
+\newcommand{\SunTopicMeasureB}[5]{%
+\UpdateDimMeasure{\SunBDateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\SunBDateMonthDim}{\hbox{\mf#2}}
+}
+
+\newcommand{\SunTopic}[5]{%
+\csname SunTopic\mtModeNameTypesetMeasureAB\endcsname{#1}{#2}{#3}{#4}{#5}
+}
+
+\newcommand{\SunChapterTypeset}[4]{%
+\mf\raggedleft\tstrut#1&\raggedright\mf#2&\mf#3&\hfill#4\hfill\bstrut%
+\\ \hline}
+
+\newcommand{\SunChapterMeasureA}[4]{%
+\UpdateDimMeasure{\SunADateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\SunADateMonthDim}{\hbox{\mf#2}}
+\UpdateDimMeasure{\SunABookDim}{\hbox{\mf#3}}
+}
+\newcommand{\SunChapterMeasureB}[4]{%
+\UpdateDimMeasure{\SunBDateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\SunBDateMonthDim}{\hbox{\mf#2}}
+\UpdateDimMeasure{\SunBBookDim}{\hbox{\mf#3}}
+}
+\newcommand{\SunChapter}[4]{%
+\csname SunChapter\mtModeNameTypesetMeasureAB\endcsname{#1}{#2}{#3}{#4}
+}
+
+\newcommand{\WorkingPageHeight}[0]{285mm} %132*2=264+16=280+16=296
+
+%\newcommand{\BoxHeight}[0]{136mm} %136*2=272+8=280+16=296
+%\newcommand{\SunWidth}[0]{72mm}
+%\newcommand{\WedWidth}[0]{114mm} %114+72=186+8=194+16=210
+
+\newbox\SideABox
+\newbox\SideBBox
+
+\newcommand{\SunABox}[0]{%
+\limitBoxSizeBottomRaised{\SunWidth}{\BoxHeight}{%
+\lower .9mm\hbox{\StartSunA\SunA\EndSun}}}
+
+\newcommand{\WedANoteBox}[0]{%
+\setbox\boxToLimit=\hbox{\parbox[t]{\WedATopicDim}{\raggedright\EndNoteWedA}}%
+\ifdim\wd\boxToLimit>0pt%
+\hbox{\resizebox*{\WedATopicDim}{!}{\box\boxToLimit}}%
+\else\fi
+}
+\newcommand{\WedBNoteBox}[0]{%
+\setbox\boxToLimit=\hbox{\parbox[t]{\WedBTopicDim}{\raggedright\EndNoteWedB}}%
+\ifdim\wd\boxToLimit>0pt%
+\hbox{\resizebox*{\WedBTopicDim}{!}{\box\boxToLimit}}%
+\else\fi
+}
+
+\newcommand{\WedABox}[0]{%
+\calcWedATopicDim%
+\limitBoxSizeBottomRaisedRight{\WedWidth}{\BoxHeight}{%
+%\lower .9mm\hbox{\StartWedATypeset\WedA\EndWed\EndNoteWedA}}%
+\lower .9mm\hbox{\vbox{\hbox{\StartWedATypeset\WedA\EndWed}%
+\WedANoteBox}}}%
+}
+
+\newcommand{\SunBBox}[0]{%
+\limitBoxSizeBottomRaisedRight{\SunWidth}{\BoxHeight}{%
+\lower .9mm\hbox{\StartSunB\SunB\EndSun}}%
+}
+
+\newcommand{\WedBBox}[0]{%
+\calcWedBTopicDim%
+\limitBoxSizeBottomRaised{\WedWidth}{\BoxHeight}{%
+\lower .9mm\hbox{\vbox{\hbox{\StartWedBTypeset\WedB\EndWed}%
+\WedBNoteBox}}}}
+
+\newcommand{\MakeBoxes}[0]{%
+\measureModeA\WedA\SunA%
+\measureModeB\WedB\SunB%
+\PackageWarning{WedAB}{Measurement done}%
+%\measureModeOff
+\setbox\SideABox =%
+\vtop{%
+\hbox{\limitBoxSizeTop{\oneSideBoxWidth}{\BoxHeight}{%
+\hbox  to \WorkingPageWidth{\SunABox\hfil\WedABox}%
+}}}%
+\setbox\SideBBox =%
+\vtop{%
+\hbox{\limitBoxSizeTop{\oneSideBoxWidth}{\BoxHeight}{%
+\hbox to \WorkingPageWidth{\WedBBox\hfil\SunBBox}%
+}}}
+}
+\newcommand{\OnePagePreview}[0]{%
+\vbox to \WorkingPageHeight{%
+\copy\SideABox%
+\vfil%
+\copy\SideBBox}}
+
+\newcommand{\OnePageTwisted}[0]{%
+\vbox to \WorkingPageHeight{%
+\copy\SideABox%
+\vfil%
+{\rotatebox[origin=c]{180}%
+{\copy\SideBBox}}}}
+
+\newcommand{\TwoPageTwisted}[0]{%
+\vbox to \WorkingPageHeight{%
+\copy\SideABox%
+\vfil%
+\rotatebox[origin=c]{180}{\copy\SideABox}}%
+\newpage%
+\vbox to \WorkingPageHeight{%
+\copy\SideBBox%
+\vfil%
+\rotatebox[origin=c]{180}{\copy\SideBBox}%
+}%
+}
+
+\newcommand{\TwoPageLarge}[0]{%
+%\resizebox{\oneSideBoxWidth}{!}{%
+\rotatebox[origin=c]{0}{\copy\SideABox}%
+%}%
+\newpage%
+%\resizebox{\oneSideBoxWidth}{!}{%
+\rotatebox[origin=c]{0}{\copy\SideBBox}%
+%}%
+}
+
+
+\newcommand{\Init}[0]{%
+\errorcontextlines=7
+\setlength{\parskip}{0cm}
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.1pt}
+\setlength\parindent{0cm}
+\SelectMainFont%
+\exhyphenpenalty = -20%
+\doublehyphendemerits = 0
+\finalhyphendemerits = 0
+\adjdemerits = 0
+\linepenalty=30
+\setlength{\arrayrulewidth}{.5pt}
+}
+
+\newcommand{\StartOutput}[0]{%
+\begin{document}%
+\Init%
+\pagestyle{empty}%
+\MakeBoxes%
+%{\OnePagePreview}
+%{\OnePageTwisted}
+%{\TwoPageTwisted}
+}
+
+\newcommand{\EndOutput}[0]{%
+\end{document}}
+
+\end{filecontents*}
+\documentclass[english]{article}
+\usepackage{BibleReadings1}
+\WaterMark
+\SunAColWidths{}{}{}{xxxxxxxxxxxxxxxxxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+\SunBColWidths{}{}{}{xxxxxxxxxxxxxxxxxxxxxxxxxixxxxxxxxxxxxxxxx}
+\WedAColWidths{}{}{}{}{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixxxxxixxxxxxxxxxxxxxxxxxxxx}
+\WedBColWidths{}{}{}{}{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+
+\renewcommand{\SunA}{
+\SunListH{Bybellesings\ \bnf{2028}}
+\SunListSubH{Sondag / Sunday}
+\SunChapter{\nf{2}}{Jan}{Handelinge}{\nf{1}}
+\SunChapter{\nf{9}}{Jan}{Acts}{\nf{2}}
+\SunChapter{\nf{16}}{Jan}{Handelinge}{\nf{3}}
+\SunChapter{\nf{23}}{Jan}{Acts}{\nf{4}}
+\SunChapter{\nf{30}}{Jan}{Handelinge}{\nf{5}}
+\SunChapter{\nf{6}}{Feb}{Acts}{\nf{6}\ \&\ \nf{7}}
+\SunTopic{\nf{13}}{Feb}{Eyes\ opened}{Geopende\ o\"e}{Ge~\nf{21}:\nf{19};\ Nu~\nf{22}:\nf{31};\ \nf{2}Ki~\nf{6}:\nf{17};\ Ps~\nf{119}:\nf{18};\ Joh~\nf{4}:\nf{35};\ Eph~\nf{1}:\nf{18}}
+\SunChapter{\nf{20}}{Feb}{Handelinge}{\nf{8}}
+\SunChapter{\nf{27}}{Feb}{Acts}{\nf{9}}
+\SunChapter{\nf{5}}{Mar}{Handelinge}{\nf{10}\ \&\ \nf{11}}
+\SunTopic{\nf{12}}{Mar}{Wisdom\ of\ considering\ our\ latter\ end}{Wysheid\ om\ ons\ lewenseinde\ in\ ag\ te\ neem}{Deu~\nf{32}:\nf{29};\ Jer~\nf{29}:\nf{11};\ Gal~\nf{6}:\nf{7};\ \nf{1}Ti~\nf{5}:\nf{24};\ Heb~\nf{12}:\nf{11},\nf{17};\ \nf{1}Pe~\nf{5}:\nf{10}}
+\SunChapter{\nf{19}}{Mar}{Acts}{\nf{12}}
+\SunChapter{\nf{26}}{Mar}{Handelinge}{\nf{13}}
+\SunChapter{\nf{2}}{Apr}{Acts}{\nf{14}}
+\SunTopic{\nf{9}}{Apr}{Are\ we\ progressing\ or\ regressing?}{Gaan\ ons\ vooruit\ of\ agteruit?}{Isa~\nf{48}:\nf{17},\nf{18};\ Hag~\nf{1}:\nf{5},\nf{6};\ Eph~\nf{4}:\nf{14},\nf{15};\ Php~\nf{1}:\nf{9};\ \nf{1}Th~\nf{4}:\nf{1};\ \nf{1}Ti~\nf{4}:\nf{15};\ \nf{2}Pe~\nf{3}:\nf{18}}
+\SunChapter{\nf{16}}{Apr}{Handelinge}{\nf{15}}
+\SunChapter{\nf{23}}{Apr}{Acts}{\nf{16}}
+\SunChapter{\nf{30}}{Apr}{Handelinge}{\nf{17}}
+\SunTopic{\nf{7}}{Mei}{Safe\ guidance\ along\ life's\ pathway}{Veilige\ leiding\ langs\ die\ lewenspad}{Ps~\nf{16}:\nf{11};\ Pro~\nf{4}:\nf{18}\textendash \nf{19};\ \nf{16}:\nf{9};\ Isa~\nf{42}:\nf{16};\ \nf{1}Pe~\nf{2}:\nf{21}\textendash \nf{25};\ \nf{1}Jo~\nf{1}:\nf{7}}
+\SunChapter{\nf{14}}{May}{Acts}{Acts}
+\SunChapter{\nf{21}}{Mei}{Handelinge}{Acts}
+\SunChapter{\nf{28}}{May}{Acts}{Acts}
+\SunTopic{\nf{4}}{Jun}{Things\ overcomers\ have\ in\ common}{Eienskappe\ wat\ oorwinnaars\ in\ gemeen\ het}{\nf{1}Sa~\nf{17}:\nf{44}\textendash \nf{46};\ Dan~\nf{3}:\nf{16}\textendash \nf{18};\ Act~\nf{20}:\nf{24};\ \nf{1}Co~\nf{9}:\nf{24}\textendash \nf{27};\ Php~\nf{3}:\nf{13},\nf{14};\ \nf{2}Ti~\nf{2}:\nf{5}}
+\SunChapter{\nf{11}}{Jun}{Handelinge}{\nf{21}}
+\SunChapter{\nf{18}}{Jun}{Acts}{\nf{22}}
+\SunChapter{\nf{25}}{Jun}{Handelinge}{\nf{23}}
+}
+\renewcommand{\SunB}[0]{%
+\SunListH{Bible\ Readings\ \bnf{2028}}
+\SunListSubH{Sondag / Sunday}
+\SunTopic{\nf{2}}{Jul}{Price\ of\ true\ discipleship}{Prys\ van\ ware\ dissipelskap}{Mat~\nf{4}:\nf{19};\ \nf{24}:\nf{12},\nf{13};\ Luk~\nf{9}:\nf{23}\textendash \nf{26},\ \nf{57}\textendash \nf{62};\ Joh~\nf{21}:\nf{18}\textendash \nf{22};\ Php~\nf{3}:\nf{7}\textendash \nf{9};\ \nf{2}Ti~\nf{3}:\nf{12}}
+\SunChapter{\nf{9}}{Jul}{Acts}{Acts}
+\SunChapter{\nf{16}}{Jul}{Handelinge}{Acts}
+\SunChapter{\nf{23}}{Jul}{Acts}{Acts}
+\SunTopic{\nf{30}}{Jul}{Gentleness\ is\ concentrated\ strength}{Sagmoedigheid\ is\ gekonsentreerde\ krag}{\nf{2}Sa~\nf{22}:\nf{36};\ \nf{2}Co~\nf{10}:\nf{1}\textendash \nf{5};\ Gal~\nf{5}:\nf{22};\ \nf{1}Th~\nf{2}:\nf{7},\nf{8};\ \nf{2}Ti~\nf{2}:\nf{24}\textendash \nf{26};\ Jas~\nf{3}:\nf{17}}
+\SunChapter{\nf{6}}{Aug}{Handelinge}{\nf{27}}
+\SunChapter{\nf{13}}{Aug}{Acts}{\nf{28}}
+\SunChapter{\nf{20}}{Aug}{\nf{1}\ Korinthi\"ers}{\nf{1}}
+\SunChapter{\nf{27}}{Aug}{\nf{1}\ Corinthians}{\nf{2}}
+\SunChapter{\nf{3}}{Sep}{\nf{1}\ Korinthi\"ers}{\nf{3}}
+\SunTopic{\nf{10}}{Sep}{The\ Word\ purifies\ life}{Die\ Woord\ reinig\ die\ lewe}{Ps~\nf{119}:\nf{9};\ Joh~\nf{15}:\nf{3};\ \nf{17}:\nf{17};\ Eph~\nf{5}:\nf{26};\ Jas~\nf{1}:\nf{21};\ \nf{1}Pe~\nf{1}:\nf{22}}
+\SunChapter{\nf{17}}{Sep}{\nf{1}\ Corinthians}{\nf{4}}
+\SunChapter{\nf{24}}{Sep}{\nf{1}\ Korinthi\"ers}{\nf{5}}
+\SunChapter{\nf{1}}{Okt}{\nf{1}\ Corinthians}{\nf{6}}
+\SunTopic{\nf{8}}{Oct}{Continual\ willingness\ essential}{Voortdurende\ gewilligheid\ noodsaaklik}{\nf{1}Sa~\nf{3}:\nf{10};\ \nf{12}:\nf{21}\textendash \nf{24};\ \nf{1}Ch~\nf{28}:\nf{9};\ \nf{29}:\nf{13}\textendash \nf{18};\ Isa~\nf{1}:\nf{18},\nf{19};\ \nf{6}:\nf{8};\ \nf{1}Co~\nf{9}:\nf{17};\ Phm~\nf{1}:\nf{21}}
+\SunChapter{\nf{15}}{Okt}{\nf{1}\ Korinthi\"ers}{\nf{7}}
+\SunChapter{\nf{22}}{Oct}{\nf{1}\ Corinthians}{\nf{8}}
+\SunChapter{\nf{29}}{Okt}{\nf{1}\ Korinthi\"ers}{\nf{9}}
+\SunTopic{\nf{5}}{Nov}{Songs\ of\ victory}{Oorwinningsliedere}{Exo~\nf{15}:\nf{1}\textendash \nf{2};\ Jdg~\nf{5}:\nf{1}\textendash \nf{31};\ \nf{2}Sa~\nf{22}:\nf{1};\ Isa~\nf{26}:\nf{1};\ Hos~\nf{2}:\nf{15};\ Rev~\nf{14}:\nf{3};\ \nf{15}:\nf{3}\textendash \nf{4}}
+\SunChapter{\nf{12}}{Nov}{\nf{1}\ Corinthians}{\nf{10}}
+\SunChapter{\nf{19}}{Nov}{\nf{1}\ Korinthi\"ers}{\nf{11}}
+\SunChapter{\nf{26}}{Nov}{\nf{1}\ Corinthians}{\nf{12}}
+\SunChapter{\nf{3}}{Des}{\nf{1}\ Korinthi\"ers}{\nf{13}}
+\SunChapter{\nf{10}}{Dec}{\nf{1}\ Corinthians}{\nf{14}}
+\SunChapter{\nf{17}}{Des}{\nf{1}\ Korinthi\"ers}{\nf{15}}
+\SunChapter{\nf{24}}{Dec}{\nf{1}\ Corinthians}{\nf{16}}
+}
+\renewcommand{\WedA}{
+\WedListH{Bible\ Readings\ \bnf{2028}}
+\WedListSubH{Woensdag / Wednesday}
+\WedChapter{\nf{5}}{Jan}{\nf{1}\ Samuel}{\nf{25}}{Wisdom\ to\ overcome\ evil\ with\ good}{Wysheid\ om\ die\ kwaad\ met\ die\ goeie\ te\ oorwin}
+\WedChapter{\nf{12}}{Jan}{\nf{1}\ Samuel}{\nf{26}}{Live\ like\ fool,\ die\ like\ a\ fool}{Leef\ soos\ 'n\ dwaas,\ sterf\ soos\ 'n\ dwaas}
+\WedChapter{\nf{19}}{Jan}{\nf{1}\ Samuel}{\nf{27}}{Impulsive\ decisions\ result\ in\ disaster}{Impulsiewe\ besluite\ lei\ tot\ 'n\ ramp}
+\WedChapter{\nf{26}}{Jan}{\nf{1}\ Samuel}{\nf{28}}{Trying\ to\ disguise\ self\ only\ reveals\ self}{Om\ jouself\ te\ probeer\ verbloem,\ openbaar\ juis\ jouself}
+\WedChapter{\nf{2}}{Feb}{\nf{1}\ Samuel}{\nf{29}\ \&\ \nf{30}}{Trials\ often\ follow\ hard\ on\ each\ other}{Beproewings\ volg\ mekaar\ dikwels\ vinnig\ op}
+\WedChapter{\nf{9}}{Feb}{\nf{1}\ Samuel}{\nf{31}}{High\ cost\ of\ one\ man's\ rebellion}{Die\ ho\"e\ prys\ van\ een\ man\ se\ opstand}
+\WedChapter{\nf{16}}{Feb}{\nf{2}\ Samuel}{\nf{1}}{David\ didn’t\ rejoice\ in\ another's\ defeat}{Dawid\ het\ nie\ gejuig\ oor\ 'n\ ander\ se\ nederlaag\ nie}
+\WedTopic{\nf{23}}{Feb}{Characteristics\ of\ the\ bride\ of\ Christ}{Eienskappe\ van\ die\ bruid\ van\ Christus}{Isa~\nf{61}:\nf{10};\ \nf{62}:\nf{5};\ Jer~\nf{2}:\nf{32};\ Mat~\nf{25}:\nf{10};\ Rev~\nf{7}:\nf{9}\textendash \nf{14};\ \nf{21}:\nf{2}\textendash \nf{11},~\nf{22}\textendash \nf{27};\ \nf{22}:\nf{10}\textendash \nf{11}}
+\WedChapter{\nf{1}}{Mar}{\nf{2}\ Samuel}{\nf{2}}{Not\ submitting\ to\ God’s\ will\ causes\ division}{Om\ die\ Here\ se\ wil\ te\ verwerp,\ veroorsaak\ verdeeldheid}
+\WedChapter{\nf{8}}{Mar}{\nf{2}\ Samuel}{\nf{3}\ \&\ \nf{4}}{God's\ anointed\ increasing\ in\ strength}{God\ se\ gesalfde\ word\ al\ hoe\ sterker}
+\WedChapter{\nf{15}}{Mar}{\nf{2}\ Samuel}{\nf{5}}{Unity\ in\ obeying\ one\ common\ king}{Eenheid\ deur\ gehoorsaamheid\ aan\ een\ Heerser}
+\WedTopic{\nf{22}}{Mar}{God's\ Purpose\ in\ calling\ us}{God\ se\ doel\ met\ ons\ roeping}{Joh~\nf{15}:\nf{8};\ Rom~\nf{8}:\nf{29};\ Php~\nf{3}:\nf{12}\textendash \nf{14};\ Tit~\nf{2}:\nf{10}\textendash \nf{14};\ Heb~\nf{12}:\nf{22}\textendash \nf{24};\ \nf{1}Pe~\nf{2}:\nf{9}}
+\WedChapter{\nf{29}}{Mar}{\nf{2}\ Samuel}{\nf{6}}{The\ God\ of\ a\ second\ chance}{Die\ God\ van\ 'n\ tweede\ kans}
+\WedChapter{\nf{5}}{Apr}{\nf{2}\ Samuel}{\nf{7}}{Blessing\ even\ in\ unanswered\ prayer}{Se\"en\ selfs\ in\ onbeantwoorde\ gebed}
+\WedChapter{\nf{12}}{Apr}{\nf{2}\ Samuel}{\nf{8}\ \&\ \nf{9}}{Humble\ yourself\ and\ God\ will\ exalt\ you}{Verneder\ jouself\ en\ God\ sal\ jou\ verhoog}
+\WedTopic{\nf{19}}{Apr}{Investing\ in\ what\ matters\ eternally}{Bel\^e\ in\ dit\ wat\ ewigheidswaarde\ het}{Mat~\nf{6}:\nf{19}\textendash \nf{21};\ \nf{26}:\nf{8}\textendash \nf{13};\ Luk~\nf{10}:\nf{39}\textendash \nf{42};\ Gal~\nf{6}:\nf{7}\textendash \nf{10};\ Php~\nf{3}:\nf{8}\textendash \nf{11};\ Rev~\nf{3}:\nf{18}}
+\WedChapter{\nf{26}}{Apr}{\nf{2}\ Samuel}{\nf{10}\ \&\ \nf{11}}{Examples\ for\ our\ warning\ and\ learning}{Voorbeelde\ vir\ ons\ waarskuwing\ en\ leering}
+\WedChapter{\nf{3}}{Mei}{\nf{2}\ Samuel}{\nf{12}}{Chastening\ proves\ God’s\ love\ to\ us}{Tugtiging\ bewys\ God\ se\ liefde\ aan\ ons}
+\WedChapter{\nf{10}}{May}{\nf{2}\ Samuel}{\nf{13}\ \&\ \nf{14}}{Forgiveness\ is\ not\ cheap}{Vergifnis\ is\ nie\ goedkoop\ nie}
+\WedTopic{\nf{17}}{Mei}{The\ weak\ in\ Him\ are\ strong}{Die\ swakkes\ is\ sterk\ in\ Hom}{\nf{1}Sa~\nf{15}:\nf{17}\textendash \nf{19};\ Ps~\nf{8}:\nf{2},\nf{3};\ Isa~\nf{40}:\nf{31};\ \nf{1}Co~\nf{1}:\nf{26}\textendash \nf{29};\ \nf{2}Co~\nf{12}:\nf{9};\ Heb~\nf{11}:\nf{32}\textendash \nf{34}}
+\WedChapter{\nf{24}}{May}{\nf{2}\ Samuel}{\nf{15}\ \&\ \nf{16}}{Times\ of\ crisis\ reveal\ people's\ character}{Krisistye\ bring\ mense\ se\ ware\ karakter\ aan\ die\ lig}
+\WedChapter{\nf{31}}{Mei}{\nf{2}\ Samuel}{\nf{17}}{Pride\ goes\ before\ destruction}{Trots\ kom\ voor\ die\ val}
+\WedChapter{\nf{7}}{Jun}{\nf{2}\ Samuel}{\nf{18}\ \&\ \nf{19}}{Faithful\ are\ the\ wounds\ of\ a\ friend}{Getrou\ is\ die\ wonde\ van\ 'n\ vriend}
+\WedTopic{\nf{14}}{Jun}{What\ makes\ a\ person\ beloved\ of\ God}{Wat\ maak\ 'n\ persoon\ geliefd\ by\ God}{Deu~\nf{34}:\nf{10}\textendash \nf{12};\ \nf{1}Sa~\nf{16}:\nf{7};\ Dan~\nf{9}:\nf{23};\ Joh~\nf{11}:\nf{5};\ \nf{13}:\nf{23};\ Act~\nf{13}:\nf{22};\ Jas~\nf{2}:\nf{23}}
+\WedChapter{\nf{21}}{Jun}{\nf{2}\ Samuel}{\nf{20}}{Blessed\ are\ the\ peacemakers!}{Gese\"end\ is\ die\ vredemakers!}
+\WedChapter{\nf{28}}{Jun}{\nf{2}\ Samuel}{\nf{21}}{Promises\ are\ not\ to\ be\ taken\ lightly}{Beloftes\ moet\ nie\ ligtelik\ opgeneem\ word\ nie}
+}
+\renewcommand{\EndNoteWedA}{\btf{}}
+\renewcommand{\WedB}[0]{%
+\WedListH{Bybellesings\ \bnf{2028}}
+\WedListSubH{Woensdag / Wednesday}
+\WedChapter{\nf{5}}{Jul}{\nf{2}\ Samuel}{\nf{22}}{Glorifying\ God\ for\ all\ victories\ won}{God\ verheerlik\ vir\ alle\ oorwinnings}
+\WedTopic{\nf{12}}{Jul}{Things\ more\ precious\ than\ gold}{Dinge\ kosbaarder\ as\ goud}{Job~\nf{28}:\nf{12}\textendash \nf{15};\ Ps~\nf{19}:\nf{10},\nf{11};\ Pr~\nf{3}:\nf{13},\nf{14};\ \nf{8}:\nf{10},\nf{19};\ \nf{16}:\nf{16};\ Isa~\nf{13}:\nf{12};\ \nf{1}Pe~\nf{1}:\nf{7}}
+\WedChapter{\nf{19}}{Jul}{\nf{2}\ Samuel}{\nf{23}}{Humble\ followers\ become\ safe\ leaders}{Nederige\ volgelinge\ word\ betroubare\ leiers}
+\WedChapter{\nf{26}}{Jul}{\nf{2}\ Samuel}{\nf{24}}{Sincere\ repentance\ brings\ true\ blessing}{Opregte\ bekering\ bring\ ware\ se\"en}
+\WedChapter{\nf{2}}{Aug}{Spreuke}{\nf{1}}{The\ importance\ of\ wisdom}{Die\ belangrikheid\ van\ wysheid}
+\WedChapter{\nf{9}}{Aug}{Proverbs}{\nf{2}}{The\ path\ of\ wisdom}{Die\ weg\ van\ wysheid}
+\WedChapter{\nf{16}}{Aug}{Spreuke}{\nf{3}}{Cultivating\ an\ obedient\ and\ trusting\ heart}{Die\ kweek\ van\ 'n\ gehoorsame\ en\ vertrouende\ hart}
+\WedChapter{\nf{23}}{Aug}{Proverbs}{\nf{4}}{Ever\ brightening\ path\ of\ righteousness}{Die\ pad\ van\ geregtigheid\ wat\ al\ hoe\ helderder\ word}
+\WedChapter{\nf{30}}{Aug}{Spreuke}{\nf{5}\ \&\ \nf{6}}{Diligence\ and\ watchfulness\ of\ wisdom}{Ywer\ en\ waaksaamheid\ van\ wysheid}
+\WedChapter{\nf{6}}{Sep}{Proverbs}{\nf{7}\ \&\ \nf{8}}{Two\ voices\ calling,\ two\ destinations}{Twee\ stemme\ wat\ roep,\ twee\ bestemmings}
+\WedChapter{\nf{13}}{Sep}{Spreuke}{\nf{9}}{Wisdoms\ banquet\ offers\ life\ and\ true\ joy}{Wysheidsfeesmaal\ bied\ lewe\ en\ ware\ vreugde}
+\WedTopic{\nf{20}}{Sep}{Things\ that\ disturb\ unity}{Dinge\ wat\ eenheid\ versteur}{Pro~\nf{17}:\nf{9};\ Luk~\nf{22}:\nf{24};\ Rom~\nf{12}:\nf{3}\textendash \nf{5};\ \nf{1}Co~\nf{1}:\nf{10}\textendash \nf{13};\ \nf{3}:\nf{3},\nf{4};\ Php~\nf{2}:\nf{3};\ Heb~\nf{12}:\nf{15}}
+\WedChapter{\nf{27}}{Sep}{Proverbs}{\nf{10}}{Wise\ words\ and\ works\ of\ the\ righteous}{Wyse\ woorde\ en\ werke\ van\ die\ regverdiges}
+\WedChapter{\nf{4}}{Okt}{Spreuke}{\nf{11}}{Contrast\ of\ the\ upright\ and\ the\ wicked}{Kontras\ tussen\ die\ opregtes\ en\ die\ goddeloses}
+\WedChapter{\nf{11}}{Oct}{Psalm}{\nf{33}}{Worship\ in\ spirit\ and\ truth}{Aanbidding\ in\ gees\ en\ waarheid}
+\WedTopic{\nf{18}}{Okt}{Value\ of\ true\ contentment}{Waarde\ van\ ware\ tevredenheid}{\nf{2}Ki~\nf{4}:\nf{13};\ Ps~\nf{131}:\nf{2};\ Mat~\nf{6}:\nf{33};\ Luk~\nf{12}:\nf{15};\ Php~\nf{4}:\nf{11};\ \nf{1}Tim~\nf{6}:\nf{6}\textendash \nf{8}}
+\WedChapter{\nf{25}}{Oct}{Psalm}{\nf{34}\ \&\ \nf{35}}{Witness\ of\ God's\ merciful\ deliverance}{Getuienis\ van\ God\ se\ barmhartige\ verlossing}
+\WedChapter{\nf{1}}{Nov}{Psalm}{\nf{36}\ \&\ \nf{37}}{Man's\ wickedness\ and\ God's\ faithfulness}{Die\ mens\ se\ boosheid\ en\ God\ se\ getrouheid}
+\WedChapter{\nf{8}}{Nov}{Psalm}{\nf{38}\ \&\ \nf{39}}{God\ does\ not\ allow\ us\ to\ sin\ successfully}{God\ laat\ nie\ toe\ dat\ ons\ in\ sonde\ voortgaan\ nie}
+\WedTopic{\nf{15}}{Nov}{Danger\ of\ self\textendash deception}{Gevaar\ van\ selfbedrog}{Mat~\nf{7}:\nf{21}\textendash \nf{23};\ \nf{1}Co~\nf{3}:\nf{18};\ \nf{10}:\nf{12};\ \nf{2}Co~\nf{13}:\nf{5};\ Gal~\nf{6}:\nf{3},\nf{7};\ \nf{2}Ti~\nf{3}:\nf{13};\ Rev~\nf{3}:\nf{16},\nf{17}}
+\WedChapter{\nf{22}}{Nov}{Psalm}{\nf{40}\ \&\ \nf{41}}{Our\ God\ is\ worth\ wating\ for}{Dit\ is\ die\ moeite\ werd\ om\ op\ ons\ God\ te\ wag}
+\WedChapter{\nf{29}}{Nov}{Psalm}{\nf{42}\ \&\ \nf{43}}{Start\ feeding\ on\ the\ Word,\ not\ on\ feelings}{Voed\ op\ die\ Woord,\ nie\ op\ gevoelens\ nie}
+\WedChapter{\nf{6}}{Des}{Psalm}{\nf{44}\ \&\ \nf{45}}{Trust\ in\ God\ and\ not\ in\ your\ resources}{Vertrou\ op\ God\ en\ nie\ op\ eie\ hulpbronne\ nie}
+\WedChapter{\nf{13}}{Dec}{Psalm}{\nf{46}\ \&\ \nf{47}}{What\ we\ can\ learn\ in\ the\ stillness}{Wat\ ons\ in\ die\ stilte\ kan\ leer}
+\WedChapter{\nf{20}}{Des}{Psalm}{\nf{48}\ \&\ \nf{49}}{Possessing\ treasures\ beyond\ this\ life}{Die\ besit\ van\ skatte\ wat\ verder\ strek\ as\ hierdie\ lewe}
+\WedChapter{\nf{27}}{Dec}{Psalm}{\nf{50}}{Judgment\ begins\ with\ God's\ people}{Oordeel\ begin\ by\ die\ Here\ se\ volk}
+}
+\renewcommand{\EndNoteWedB}{\btf{}}
+\LargePage
+\renewcommand{\WedWidth}[0]{106mm}
+\renewcommand{\SunWidth}[0]{80mm}
+%\debug
+\StartOutput
+\TwoPageTwisted
+\EndOutput

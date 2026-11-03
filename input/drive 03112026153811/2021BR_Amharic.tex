@@ -1,0 +1,795 @@
+\begin{filecontents*}{AMBibleReadings.sty}
+\ProvidesPackage{AMBibleReadings}
+\usepackage{graphicx}
+\usepackage{times}
+\usepackage{color}
+
+
+\RequirePackage{fontspec}
+\RequirePackage{polyglossia}
+
+% Font setup
+\newfontfamily\amharicbasefont[
+  Path=.fonts/,
+  Extension=.ttf,
+  UprightFont=*,
+]{nyala}
+
+\newcommand{\amharicfont}{\amharicbasefont\fontsize{20pt}{22pt}\selectfont}
+%\newfontfamily\latinfont{Latin Modern Roman}
+\setmainlanguage{amharic}
+
+%\setmainfont{nyala}[Script=Ethiopic]
+
+% Simulated bold
+\newcommand{\amharicbold}[1]{%
+  {\amharicfont\addfontfeatures{FakeBold=4.0}#1}%
+}
+
+
+
+\newcommand{\border}[0]{8mm}
+\newcommand{\PrintWaterMark}{}
+\newcommand{\WaterMark}[0]{\renewcommand{\PrintWaterMark}{\sc@wm@print{\sc@watermark}}}
+\newlength\sc@wm@fontsize
+\def\sc@wm@angle{45}
+\def\sc@wm@colormodel{[gray]}
+\def\sc@wm@colorspecs{0.85}
+\def\sc@wm@scale{0.7}
+\setlength\sc@wm@fontsize{5cm}
+\newcommand\sc@watermark{%
+  \setlength{\@tempdimb}{8cm}%.5\paperwidth}%
+  \setlength{\@tempdimc}{15cm}%-.5\paperheight}%
+  \put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){%
+    \makebox(0,0){\rotatebox{\sc@wm@angle}{%
+        \scalebox{\sc@wm@scale}{%
+          \expandafter\expandafter\expandafter\textcolor
+          \expandafter\sc@wm@colormodel\expandafter{\sc@wm@colorspecs}
+{%
+            \fontsize{\sc@wm@fontsize}{1.2\sc@wm@fontsize}
+            \selectfont
+            DRAFT}}}}}}
+\newcommand\sc@wm@print[1]{%
+  \setbox\@tempboxa\vbox to \z@{%
+    \vskip -1in \moveleft 1in \vbox{%
+      \hbox to \z@{%
+        #1\hss}}\vss}
+  \dp\@tempboxa\z@
+  \box\@tempboxa}
+
+\newcommand{\SmallPage}[0]{
+\newcommand{\oneSideBoxWidth}[0]{273mm}
+\newcommand{\BoxHeight}[0]{186mm} %132*2=264+16=280+16=296
+\newcommand{\SunWidth}[0]{96mm}
+\newcommand{\WedWidth}[0]{153mm} %110+68=178+16=194+16=210
+\newcommand{\WorkingPageWidth}[0]{273mm} %132*2=264+16=280+16=296
+\usepackage[
+	paperwidth=297mm,
+	paperheight=210mm,
+	top=12mm,
+	bottom=12mm,
+	left=12mm,
+	right=12mm,
+	nofoot, footskip=0pt,footnotesep=1pt]
+{geometry}
+}
+\newcommand{\LargePage}[0]{
+\newcommand{\oneSideBoxWidth}[0]{198mm}
+\newcommand{\BoxHeight}[0]{136mm} %132*2=264+16=280+16=296
+\newcommand{\SunWidth}[0]{72mm}
+\newcommand{\WedWidth}[0]{114mm} %110+68=178+16=194+16=210
+\newcommand{\WorkingPageWidth}[0]{198mm} %132*2=264+16=280+16=296
+\usepackage[
+	paperwidth=210mm,
+	paperheight=297mm,
+	top=6mm,
+	bottom=6mm,
+	left=6mm,
+	right=6mm,
+	nofoot, footskip=0pt,footnotesep=1pt]
+{geometry}
+}
+
+% Renew these commands
+\newcommand{\SunA}[0]{}
+\newcommand{\SunB}[0]{}
+\newcommand{\WedA}[0]{}
+\newcommand{\WedB}[0]{}
+\newcommand{\EndNoteWedA}{}
+\newcommand{\EndNoteWedB}{}
+
+\newcommand{\SunTopicDim}[0]{}
+		
+\newcommand{\SelectMainFont}[0]{%
+%\usefont{T1}{fds}{m}{n}
+%\usefont{T1}{pag}{m}{n}
+%\usefont{T1}{phv}{m}{n}
+}
+\newcommand{\mf}[0]{\SelectMainFont}
+
+\newcommand{\SelectNumberFont}[0]{%
+%\usefont{T1}{fds}{m}{n}
+\usefont{T1}{pag}{m}{n}
+}
+\newcommand{\SelectBoldNumberFont}[0]{%
+%\usefont{T1}{fds}{b}{n}
+\usefont{T1}{pag}{b}{n}
+}
+
+%\newbox\testColWidth
+
+\newdimen\SunADateDayDim
+\newdimen\SunADateMonthDim
+\newdimen\SunABookDim
+\newdimen\SunATopicDim
+\newdimen\SunAChapterDim
+
+\newcommand{\SunAColWidths}[4]{
+\SelectMainFont
+\UpdateDimMeasure{\SunADateDayDim}{\hbox{#1}}
+\UpdateDimMeasure{\SunADateMonthDim}{\hbox{#2}}
+\UpdateDimMeasure{\SunABookDim }{\hbox{#3}}
+%\UpdateDimMeasure{\SunATopicDim}{\hbox{\amharicbold{#4}}}
+\UpdateDimMeasure{\SunATopicDim}{\hbox{\textbf{#4}}}
+}
+
+\newdimen\SunBDateDayDim
+\newdimen\SunBDateMonthDim
+\newdimen\SunBBookDim
+\newdimen\SunBChapterDim
+\newdimen\SunBTopicDim
+
+\newcommand{\SunBColWidths}[4]{
+\SelectMainFont
+\UpdateDimMeasure{\SunBDateDayDim}{\hbox{#1}}
+\UpdateDimMeasure{\SunBDateMonthDim}{\hbox{#2}}
+\UpdateDimMeasure{\SunBBookDim }{\hbox{#3}}
+\UpdateDimMeasure{\SunBTopicDim}{\hbox{\textbf{#4}}}
+}
+\newdimen\SunTopicDim
+
+\newcommand{\setSunATopicCalcChapterDim}[0]{
+\SunTopicDim = \SunATopicDim
+\SunAChapterDim=\SunTopicDim
+\advance \SunAChapterDim by -\SunABookDim
+\advance \SunAChapterDim by -0.5\padWidth
+}
+
+\newcommand{\setSunBTopicCalcChapterDim}[0]{
+\SunTopicDim = \SunBTopicDim
+\SunBChapterDim=\SunTopicDim
+\advance \SunBChapterDim by -\SunBBookDim
+\advance \SunBChapterDim by -0.5\padWidth
+}
+
+\newdimen\WedADateDayDim
+\newdimen\WedADateMonthDim
+\newdimen\WedABookDim
+\newdimen\WedAChapterDim
+\newdimen\WedAChapterTopicDim
+
+\newcommand{\WedAColWidths}[5]{
+\SelectMainFont
+\UpdateDimMeasure{\WedADateDayDim}{\hbox{#1}}
+\UpdateDimMeasure{\WedADateMonthDim}{\hbox{#2}}
+\UpdateDimMeasure{\WedABookDim}{\hbox{#3}}
+\UpdateDimMeasure{\WedAChapterDim}{\hbox{#4}}
+\UpdateDimMeasure{\WedAChapterTopicDim}{\hbox{#5}}
+%\UpdateDimMeasure{\WedAChapterTopicDim}{\hbox{\amharicbold{#5}}}
+}
+\newdimen\WedBDateDayDim
+\newdimen\WedBDateMonthDim
+\newdimen\WedBBookDim
+\newdimen\WedBChapterDim
+\newdimen\WedBChapterTopicDim
+
+\newcommand{\WedBColWidths}[5]{
+\SelectMainFont
+\UpdateDimMeasure{\WedBDateDayDim}{\hbox{#1}}
+\UpdateDimMeasure{\WedBDateMonthDim}{\hbox{#2}}
+\UpdateDimMeasure{\WedBBookDim}{\hbox{#3}}
+\UpdateDimMeasure{\WedBChapterDim}{\hbox{#4}}
+\UpdateDimMeasure{\WedBChapterTopicDim}{\hbox{#5}}
+}
+
+\newdimen\WedTopicDim
+\newdimen\WedATopicDim
+\newdimen\WedBTopicDim
+\newdimen\WedChapterTopicDim
+
+\newcommand{\calcWedATopicDim}[0]{
+\WedChapterTopicDim = \WedAChapterTopicDim
+\WedTopicDim =\WedAChapterTopicDim
+\advance \WedTopicDim by \WedABookChapterDim
+%\advance \WedTopicDim by 1\padWidth
+\WedATopicDim =\WedTopicDim
+}
+\newcommand{\calcWedBTopicDim}[0]{
+\WedChapterTopicDim = \WedBChapterTopicDim
+\WedTopicDim =\WedBChapterTopicDim
+\advance \WedTopicDim by \WedBBookChapterDim
+%\advance \WedTopicDim by 2\padWidth
+\WedBTopicDim =\WedTopicDim
+}
+
+\newbox\boxToLimit
+\newbox\widthLimit
+\newbox\heightLimit
+\newbox\resultbox
+\def\smash#1{{\setbox0=\hbox{#1}\dp0=0pt\ht0=0pt\wd0=0pt\box0\relax}}
+
+\newcommand{\frameWidth}[0]{0pt}
+\newcommand{\framedBox}[1]{\hbox{#1}}
+
+\newcommand{\debug}[0]{%
+%\renewcommand{\frameWidth}{1pt}
+\renewcommand{\framedBox}[1]{\fbox{##1}}%
+}
+
+\newcommand{\alignRight}[2]{%
+{\setbox\MeasureBox=#1\relax%
+\dimen0=#2%
+\advance\dimen0 by -\wd\MeasureBox%
+\hskip \dimen0\box\MeasureBox}%
+}
+
+\newcommand{\limitBoxSizeResultBox}[3]{%
+\setbox\boxToLimit=\hbox{#3}%
+\setbox\widthLimit=\hbox{\resizebox*{#1}{!}{\copy\boxToLimit}}%
+\setbox\heightLimit=\hbox{\resizebox*{!}{#2}{\box\boxToLimit}}%
+\ifdim\wd\heightLimit<\wd\widthLimit%
+\setbox\resultbox=\box\heightLimit%
+\else%
+\setbox\resultbox=\box\widthLimit\fi%
+}
+
+\newcommand{\limitBoxSizeFTop}[3]{%
+\limitBoxSizeResultBox{#1}{#2}{#3}%
+\hbox{\smash{%\lower\dp\resultbox
+\box\resultbox}}%
+\framedBox{\rule{\frameWidth}{#2}%
+\rule{#1}{\frameWidth}}%
+}
+\newcommand{\limitBoxSizeBottomRaised}[3]{%
+\limitBoxSizeResultBox{#1}{#2}{#3}%
+\hbox{\smash{\lower\ht\resultbox\hbox{\raise#2
+\box\resultbox}}}%
+\framedBox{\rule{\frameWidth}{#2}%
+\rule{#1}{\frameWidth}}%
+}
+\newcommand{\limitBoxSizeBottomRaisedRight}[3]{%
+\limitBoxSizeResultBox{#1}{#2}{#3}%
+\hbox{\smash{\lower\ht\resultbox\hbox{\raise#2\hbox{%
+\alignRight{\box\resultbox}{#1}}}}}%
+\framedBox{\rule{\frameWidth}{#2}%
+\rule{#1}{\frameWidth}}%
+}
+
+\newcommand{\limitBoxSizeFBottom}[3]{%
+\limitBoxSizeResultBox{#1}{#2}{#3}%
+\hbox{\smash{\raise\ht\resultbox\box\resultbox}}%
+\framedBox{\rule{\frameWidth}{#2}%
+\rule{#1}{\frameWidth}}%
+}
+
+\newcommand{\limitBoxSizeBottomRight}[3]{%
+\limitBoxSizeResultBox{#1}{#2}{#3}%
+\hbox{\smash{%
+\raise\ht\resultbox\hbox{\alignRight{\box\resultbox}{#1}}%
+}}%
+\framedBox{\rule{\frameWidth}{#2}%
+\rule{#1}{\frameWidth}}%
+}
+
+\newcommand{\limitBoxSizeTop}[3]{%
+\limitBoxSizeFTop{#1}{#2}{#3}%
+%\limitBoxSizeResultBox{#1}{#2}{#3}%
+%\hbox{{\raise\dp\resultbox\box\resultbox}}%
+}
+
+\newcommand{\limitBoxSizeBottom}[3]{%
+\limitBoxSizeFBottom{#1}{#2}{#3}%
+%\limitBoxSizeResultBox{#1}{#2}{#3}%
+%\hbox{\lower\ht\resultbox\box\resultbox}
+}
+
+\newcommand{\padWidth}[0]{1mm}
+\newcommand{\pad}[0]{@{\hspace{\padWidth}}}
+\newcommand{\padSkip}[0]{\hskip \padWidth}
+\newcommand{\negpadSkip}[0]{\hskip -1\padWidth}
+\newcommand{\nopad}[0]{@{}}
+\newcommand{\nobreakhyphen}[0]{\nobreak\hbox{-}\nobreak}
+\newcommand{\nobreakendash}[0]{\nobreak\hbox{--}\nobreak}
+\newcommand{\nobreakrefrange}[0]{\nobreakhyphen}
+%\textendash\nobreak}
+\newcommand{\nf}[1]{\SelectNumberFont#1\SelectMainFont}
+\newcommand{\tf}[1]{\SelectMainFont#1}%\SelectMainFont}
+\newcommand{\bnf}[1]{\SelectBoldNumberFont#1\SelectMainFont\bfseries}
+\newcommand{\btf}[1]{\SelectMainFont\bfseries#1}%\SelectMainFont}
+
+\newcommand{\enDashSep}[0]{%
+\discretionary{}{}{\hbox{\hspace{.6ex}\textendash\hspace{.6ex}}}}
+
+\newcommand{\backslashsep}[0]{%
+\discretionary{}{}{\hbox{\hspace{.6ex}\textbackslash\hspace{.6ex}}}}
+
+\newcommand{\tstrut}[0]{\rule{0mm}{1.9ex}}
+\newcommand{\bstrut}[0]{\rule[-0.4ex]{0mm}{1ex}}
+
+\newdimen\WedABookChapterDim
+\newdimen\WedBBookChapterDim
+\newbox\MeasureBox
+\WedABookChapterDim = 5mm
+\WedBBookChapterDim = 5mm
+
+\newcount\MtMode
+\newcommand{\measureModeA}{\MtMode=1}
+\newcommand{\measureModeB}{\MtMode=2}
+\newcommand{\typesetModeA}{\MtMode=3}
+\newcommand{\typesetModeB}{\MtMode=4}
+
+\newcommand{\UpdateDimMeasure}[2]{ % dim, hbox
+\setbox\MeasureBox=#2%
+\ifdim\wd\MeasureBox >#1%
+#1=\wd\MeasureBox%
+\fi}
+
+
+\newcommand{\WedChapterTypeset}[6]{
+\raggedleft\tstrut#1&\raggedright\mf#2&\mf#3\hfill#4\bstrut&%
+\begin{minipage}[t]{\WedChapterTopicDim}\raggedright\mf#5%
+\setbox\MeasureBox=\hbox{#6}%
+\ifdim\wd\MeasureBox>0pt\backslashsep%
+\mf#6\fi\bstrut\end{minipage}%
+\\ \hline
+}
+
+\newcommand{\WedChapterMeasureA}[6]{%
+\SelectMainFont%
+\UpdateDimMeasure{\WedADateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\WedADateMonthDim}{\hbox{\mf#2}}
+\UpdateDimMeasure{\WedABookChapterDim}{\hbox{\mf#3\hspace{0.6ex}#4}}
+}
+
+\newcommand{\WedChapterMeasureB}[6]{
+\UpdateDimMeasure{\WedBDateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\WedBDateMonthDim}{\hbox{\mf#2}}
+\UpdateDimMeasure{\WedBBookChapterDim}{\hbox{\mf#3\hspace{0.6ex}#4}}
+}
+
+\newcommand{\mtModeNameTypesetMeasureAB}[0]{%
+\ifcase\MtMode\or MeasureA\or MeasureB\or Typeset\or Typeset\fi}
+
+\newcommand{\mtModeNameTypesetMeasure}[0]{%
+\ifcase\MtMode\or Measure\or Measure\or Typeset\or Typeset\fi}
+
+\newcommand{\WedChapter}[6]{%
+\csname WedChapter\mtModeNameTypesetMeasureAB\endcsname{#1}{#2}{#3}{#4}{#5}{#6}}
+
+\newcommand{\WedTopicMeasureA}[5]{
+\UpdateDimMeasure{\WedADateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\WedADateMonthDim}{\hbox{\mf#2}}
+}
+\newcommand{\WedTopicMeasureB}[5]{
+\UpdateDimMeasure{\WedBDateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\WedBDateMonthDim}{\hbox{\mf#2}}
+}
+
+%\newcommand{\WedTopicTypeset}[5]{%
+%\raggedleft\tstrut#1&\raggedright\mf#2&\multicolumn{2}{%
+%\nopad p{\WedTopicDim} \nopad|}{\raggedright\amharicbold{#3%
+%\setbox\MeasureBox=\hbox{#4}%
+%\ifdim\wd\MeasureBox>0pt\enDashSep#4\else\fi} \penalty-20\amharicfont#5\bstrut} \\ \hline}
+
+\newcommand{\WedTopicTypeset}[5]{%
+\mf\tstrut\raggedleft#1&\mf\raggedright#2&\multicolumn{2}{%
+\nopad p{\WedTopicDim} \nopad|}{\raggedright\amharicfont\amharicbold{#3}%
+\setbox\MeasureBox=\hbox{#4}%
+\ifdim\wd\MeasureBox>0pt\enDashSep#4\fi \penalty-20%
+\parbox[t]{\WedTopicDim}{\amharicfont\raggedright#5}\bstrut} \\ \hline}
+
+%\raggedleft\tstrut#1&\raggedright\mf#2&\multicolumn{2}{%
+%\nopad p{\WedTopicDim} \nopad|}{\raggedright\mf\textbf{#3%
+%\setbox\MeasureBox=\hbox{#4}%
+%\ifdim\wd\MeasureBox>0pt\enDashSep%
+%#4\else\fi} \penalty-20#5\bstrut} \\ \hline
+%}
+
+
+\newcommand{\WedTopic}[5]{%
+\csname WedTopic\mtModeNameTypesetMeasureAB\endcsname{#1}{#2}{#3}{#4}{#5}}
+
+\newcommand{\WedListHTypeset}[1]{%
+\multicolumn{4}{|c|}{\mf\LARGE\textbf{#1\tstrut}} \\ \hline}
+
+\newcommand{\WedListHMeasure}[1]{}
+
+\newcommand{\WedListH}[1]{%
+\csname WedListH\mtModeNameTypesetMeasure\endcsname{#1}}
+
+\newcommand{\WedSubListHTypeset}[1]{%
+\multicolumn{4}{|c|}{\mf\large\textbf{#1\tstrut}}\\ \hline}
+
+\newcommand{\WedSubListHMeasure}[1]{}
+
+\newcommand{\WedListSubH}[1]{%
+\csname WedSubListH\mtModeNameTypesetMeasure\endcsname{#1}}
+
+\newcommand{\StartWedATypeset}[0]{%
+\PrintWaterMark%
+\PackageWarning{WedA}{StartTypeset}%
+\typesetModeA%
+\calcWedATopicDim%
+\begin{tabular}
+{|\pad p{\WedADateDayDim} \pad p{\WedADateMonthDim} \pad | \pad p{\WedABookChapterDim} \pad | \pad p{\WedAChapterTopicDim} \pad| }\hline%
+}
+
+\newcommand{\StartWedBTypeset}[0]{%
+\PrintWaterMark%
+\PackageWarning{WedB}{StartTypeset}%
+\typesetModeB%
+\calcWedBTopicDim%
+\begin{tabular}
+{|\pad p{\WedBDateDayDim} \pad p{\WedBDateMonthDim} \pad | \pad p{\WedBBookChapterDim} \pad | \pad p{\WedBChapterTopicDim} \pad| }\hline%
+}
+
+\newcommand{\EndWed}[0]{\end{tabular}}
+
+\newcommand{\StartSunA}{%
+\PrintWaterMark%
+\typesetModeA%
+\setSunATopicCalcChapterDim%
+\begin{tabular}
+{|\pad p{\SunADateDayDim} \pad p{\SunADateMonthDim} \pad |  \pad p{\SunABookDim}%
+\pad p{\SunAChapterDim} \pad| }\hline}
+
+\newcommand{\StartSunB}{%
+\PrintWaterMark%
+\typesetModeB%
+\setSunBTopicCalcChapterDim%
+\begin{tabular}
+{|\pad p{\SunBDateDayDim} \pad p{\SunBDateMonthDim} \pad |  \pad p{\SunBBookDim}%
+\pad p{\SunBChapterDim} \pad| }\hline}
+
+\newcommand{\EndSun}[0]{\end{tabular}}
+
+\newcommand{\SunListHTypeset}[1]{%
+\multicolumn{4}{|c|}{\mf\LARGE\textbf{#1}\tstrut} \\ \hline}
+
+\newcommand{\SunListHMeasure}[1]{}
+
+\newcommand{\SunListH}[1]{%
+\csname SunListH\mtModeNameTypesetMeasure\endcsname{#1}}
+
+\newcommand{\SunListSubHTypeset}[1]{%
+\multicolumn{4}{|c|}{\mf\large\textbf{#1\tstrut}}\\ \hline}
+
+\newcommand{\SunListSubHMeasure}[1]{}
+
+\newcommand{\SunListSubH}[1]{%
+\csname SunListSubH\mtModeNameTypesetMeasure\endcsname{#1}}
+
+%\newcommand{\SunTopicTypeset}[5]{%
+%\mf\tstrut\raggedleft#1&\mf\raggedright#2&\multicolumn{2}{% 
+%\nopad p{\SunTopicDim}  |}{\raggedright\amharicbold{#3\setbox\MeasureBox=\hbox{#4}%
+%\ifdim\wd\MeasureBox>0pt\enDashSep#4\fi} \penalty-20\amharicfont#5\bstrut} \\ \hline}
+
+
+%\mf\tstrut\raggedleft#1&\mf\raggedright#2&\multicolumn{2}{% 
+%\nopad p{\SunTopicDim}  |}{\raggedright\mf\textbf{#3\setbox\MeasureBox=\hbox{#4}%
+%\ifdim\wd\MeasureBox>0pt\enDashSep#4\fi} \penalty-20#5\bstrut} \\ \hline}
+
+
+
+
+%Redefine \SunTopicTypeset to ensure \amharicbold for subject
+\newcommand{\SunTopicTypeset}[5]{%
+\mf\tstrut\raggedleft#1&\mf\raggedright#2&\multicolumn{2}{% 
+\nopad p{\SunTopicDim}  |}{\raggedright\amharicfont\amharicbold{#3}%
+\setbox\MeasureBox=\hbox{#4}%
+\ifdim\wd\MeasureBox>0pt\enDashSep#4\fi \penalty-20\amharicfont#5\bstrut} \\ \hline}
+
+
+
+
+
+
+
+
+
+
+\newcommand{\SunTopicMeasureA}[5]{%
+\UpdateDimMeasure{\SunADateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\SunADateMonthDim}{\hbox{\mf#2}}
+}
+\newcommand{\SunTopicMeasureB}[5]{%
+\UpdateDimMeasure{\SunBDateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\SunBDateMonthDim}{\hbox{\mf#2}}
+}
+
+\newcommand{\SunTopic}[5]{%
+\csname SunTopic\mtModeNameTypesetMeasureAB\endcsname{#1}{#2}{#3}{#4}{#5}
+}
+
+\newcommand{\SunChapterTypeset}[4]{%
+\mf\raggedleft\tstrut#1&\raggedright\mf#2&\mf#3&\hfill#4\hfill\bstrut%
+\\ \hline}
+
+\newcommand{\SunChapterMeasureA}[4]{%
+\UpdateDimMeasure{\SunADateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\SunADateMonthDim}{\hbox{\mf#2}}
+\UpdateDimMeasure{\SunABookDim}{\hbox{\mf#3}}
+}
+\newcommand{\SunChapterMeasureB}[4]{%
+\UpdateDimMeasure{\SunBDateDayDim}{\hbox{\mf#1}}
+\UpdateDimMeasure{\SunBDateMonthDim}{\hbox{\mf#2}}
+\UpdateDimMeasure{\SunBBookDim}{\hbox{\mf#3}}
+}
+\newcommand{\SunChapter}[4]{%
+\csname SunChapter\mtModeNameTypesetMeasureAB\endcsname{#1}{#2}{#3}{#4}
+}
+
+\newcommand{\WorkingPageHeight}[0]{285mm} %132*2=264+16=280+16=296
+
+%\newcommand{\BoxHeight}[0]{136mm} %136*2=272+8=280+16=296
+%\newcommand{\SunWidth}[0]{72mm}
+%\newcommand{\WedWidth}[0]{114mm} %114+72=186+8=194+16=210
+
+\newbox\SideABox
+\newbox\SideBBox
+
+\newcommand{\SunABox}[0]{%
+\limitBoxSizeBottomRaised{\SunWidth}{\BoxHeight}{%
+\lower .9mm\hbox{\StartSunA\SunA\EndSun}}}
+
+\newcommand{\WedANoteBox}[0]{%
+\setbox\boxToLimit=\hbox{\parbox[t]{\WedATopicDim}{\raggedright\EndNoteWedA}}%
+\ifdim\wd\boxToLimit>0pt%
+\hbox{\resizebox*{\WedATopicDim}{!}{\box\boxToLimit}}%
+\else\fi
+}
+\newcommand{\WedBNoteBox}[0]{%
+\setbox\boxToLimit=\hbox{\parbox[t]{\WedBTopicDim}{\raggedright\EndNoteWedB}}%
+\ifdim\wd\boxToLimit>0pt%
+\hbox{\resizebox*{\WedBTopicDim}{!}{\box\boxToLimit}}%
+\else\fi
+}
+
+\newcommand{\WedABox}[0]{%
+\calcWedATopicDim%
+\limitBoxSizeBottomRaisedRight{\WedWidth}{\BoxHeight}{%
+%\lower .9mm\hbox{\StartWedATypeset\WedA\EndWed\EndNoteWedA}}%
+\lower .9mm\hbox{\vbox{\hbox{\StartWedATypeset\WedA\EndWed}%
+\WedANoteBox}}}%
+}
+
+\newcommand{\SunBBox}[0]{%
+\limitBoxSizeBottomRaisedRight{\SunWidth}{\BoxHeight}{%
+\lower .9mm\hbox{\StartSunB\SunB\EndSun}}%
+}
+
+\newcommand{\WedBBox}[0]{%
+\calcWedBTopicDim%
+\limitBoxSizeBottomRaised{\WedWidth}{\BoxHeight}{%
+\lower .9mm\hbox{\vbox{\hbox{\StartWedBTypeset\WedB\EndWed}%
+\WedBNoteBox}}}}
+
+\newcommand{\MakeBoxes}[0]{%
+\measureModeA\WedA\SunA%
+\measureModeB\WedB\SunB%
+\PackageWarning{WedAB}{Measurement done}%
+%\measureModeOff
+\setbox\SideABox =%
+\vtop{%
+\hbox{\limitBoxSizeTop{\oneSideBoxWidth}{\BoxHeight}{%
+\hbox  to \WorkingPageWidth{\SunABox\hfil\WedABox}%
+}}}%
+\setbox\SideBBox =%
+\vtop{%
+\hbox{\limitBoxSizeTop{\oneSideBoxWidth}{\BoxHeight}{%
+\hbox to \WorkingPageWidth{\WedBBox\hfil\SunBBox}%
+}}}
+}
+\newcommand{\OnePagePreview}[0]{%
+\vbox to \WorkingPageHeight{%
+\copy\SideABox%
+\vfil%
+\copy\SideBBox}}
+
+\newcommand{\OnePageTwisted}[0]{%
+\vbox to \WorkingPageHeight{%
+\copy\SideABox%
+\vfil%
+{\rotatebox[origin=c]{180}%
+{\copy\SideBBox}}}}
+
+\newcommand{\TwoPageTwisted}[0]{%
+\vbox to \WorkingPageHeight{%
+\copy\SideABox%
+\vfil%
+\rotatebox[origin=c]{180}{\copy\SideABox}}%
+\newpage%
+\vbox to \WorkingPageHeight{%
+\copy\SideBBox%
+\vfil%
+\rotatebox[origin=c]{180}{\copy\SideBBox}%
+}%
+}
+
+\newcommand{\TwoPageLarge}[0]{%
+%\resizebox{\oneSideBoxWidth}{!}{%
+\rotatebox[origin=c]{0}{\copy\SideABox}%
+%}%
+\newpage%
+%\resizebox{\oneSideBoxWidth}{!}{%
+\rotatebox[origin=c]{0}{\copy\SideBBox}%
+%}%
+}
+
+
+\newcommand{\Init}[0]{%
+\errorcontextlines=7
+\setlength{\parskip}{0cm}
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.1pt}
+\setlength\parindent{0cm}
+\SelectMainFont%
+\exhyphenpenalty = -20%
+\doublehyphendemerits = 0
+\finalhyphendemerits = 0
+\adjdemerits = 0
+\linepenalty=30
+\setlength{\arrayrulewidth}{.5pt}
+}
+
+\newcommand{\StartOutput}[0]{%
+\begin{document}%
+\Init%
+\pagestyle{empty}%
+\MakeBoxes%
+%{\OnePagePreview}
+%{\OnePageTwisted}
+%{\TwoPageTwisted}
+}
+
+\newcommand{\EndOutput}[0]{%
+\end{document}}
+
+\end{filecontents*}
+\documentclass[english]{article}
+\usepackage{AMBibleReadings}
+\WaterMark
+\SunAColWidths{}{}{}{xxxxxxxxxxxxxxxxxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+\SunBColWidths{}{}{}{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixxxxxxxxxxxxxxxxxxxxxxx}
+\WedAColWidths{}{}{}{}{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixxxxxixxxxxxxxxxxxxxxxxxxxx}
+\WedBColWidths{}{}{}{}{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+
+\renewcommand{\SunA}{
+\SunListH{\amharicbold{\Huge\ የመጽሐፍ\ ቅዱስ\ ንባብ}\ \bnf{2020}}
+\SunListSubH{\amharicbold{እሑድ}}
+\SunChapter{{23}}{ታህሳስ}{የሐዋርያት\ ሥራ}{{1}}
+\SunChapter{{30}}{ታህሳስ}{የሐዋርያት\ ሥራ}{{2}}
+\SunChapter{{7}}{ጥረ}{የሐዋርያት\ ሥራ}{{3}}
+\SunChapter{{14}}{ጥረ}{የሐዋርያት\ ሥራ}{{4}}
+\SunChapter{{21}}{ጥረ}{የሐዋርያት\ ሥራ}{{5}}
+\SunChapter{{28}}{ጥረ}{የሐዋርያት\ ሥራ}{{6}\ \&\ {7}}
+\SunTopic{{5}}{የካቲት}{Eyes\ opened}{}{ዘፍ~{21}:{19};\ ዘኊ~{22}:{31};\ {2}\ ነገ~{6}:{17};\ መዝ~{119}:{18};\ ዮሐ~{4}:{35};\ ኤፌ~{1}:{18}}
+\SunChapter{{12}}{የካቲት}{የሐዋርያት\ ሥራ}{{8}}
+\SunChapter{{19}}{የካቲት}{የሐዋርያት\ ሥራ}{{9}}
+\SunChapter{{26}}{የካቲት}{የሐዋርያት\ ሥራ}{{10}\ \&\ {11}}
+\SunTopic{{3}}{መጋቢት}{Wisdom\ of\ considering\ our\ latter\ end}{}{ዘዳ~{32}:{29};\ ኤር~{29}:{11};\ ገላ~{6}:{7};\ {1}\ ጢሞ~{5}:{24};\ ዕብ~{12}:{11},{17};\ {1}\ ጴጥ~{5}:{10}}
+\SunChapter{{10}}{መጋቢት}{የሐዋርያት\ ሥራ}{{12}}
+\SunChapter{{17}}{መጋቢት}{የሐዋርያት\ ሥራ}{{13}}
+\SunChapter{{24}}{መጋቢት}{የሐዋርያት\ ሥራ}{{14}}
+\SunTopic{{1}}{ሚያዚያ}{Are\ we\ progressing\ or\ regressing?}{}{ኢሳ~{48}:{17},{18};\ ሐጌ~{1}:{5},{6};\ ኤፌ~{4}:{14},{15};\ ፊል~{1}:{9};\ {1}\ ተሰ~{4}:{1};\ {1}\ ጢሞ~{4}:{15};\ {2}\ ጴጥ~{3}:{18}}
+\SunChapter{{8}}{ሚያዚያ}{የሐዋርያት\ ሥራ}{{15}}
+\SunChapter{{15}}{ሚያዚያ}{የሐዋርያት\ ሥራ}{{16}}
+\SunChapter{{22}}{ሚያዚያ}{የሐዋርያት\ ሥራ}{{17}}
+\SunTopic{{29}}{ሚያዚያ}{Safe\ guidance\ along\ life's\ pathway}{}{መዝ~{16}:{11};\ ምሳ~{4}:{18}\textendash {19};\ {16}:{9};\ ኢሳ~{42}:{16};\ {1}\ ጴጥ~{2}:{21}\textendash {25};\ {1}\ ዮሐ~{1}:{7}}
+\SunChapter{{6}}{ግንቦት}{የሐዋርያት\ ሥራ}{Acts}
+\SunChapter{{13}}{ግንቦት}{የሐዋርያት\ ሥራ}{Acts}
+\SunChapter{{20}}{ግንቦት}{የሐዋርያት\ ሥራ}{Acts}
+\SunTopic{{27}}{ግንቦት}{Things\ overcomers\ have\ in\ common}{}{{1}\ ሳሙ~{17}:{44}\textendash {46};\ ዳን~{3}:{16}\textendash {18};\ ሐሥ~{20}:{24};\ {1}\ ቆሮ~{9}:{24}\textendash {27};\ ፊል~{3}:{13},{14};\ {2}\ ጢሞ~{2}:{5}}
+\SunChapter{{4}}{ስኔ}{የሐዋርያት\ ሥራ}{{21}}
+\SunChapter{{11}}{ስኔ}{የሐዋርያት\ ሥራ}{{22}}
+\SunChapter{{18}}{ስኔ}{የሐዋርያት\ ሥራ}{{23}}
+}
+\renewcommand{\SunB}[0]{%
+\SunListH{\amharicbold{\Huge\ የመጽሐፍ\ ቅዱስ\ ንባብ}\ \bnf{2020}}
+\SunListSubH{\amharicbold{እሑድ}}
+\SunTopic{{25}}{ስኔ}{Price\ of\ true\ discipleship}{}{ማቴ~{4}:{19};\ {24}:{12},{13};\ ሉቃ~{9}:{23}\textendash {26},\ {57}\textendash {62};\ ዮሐ~{21}:{18}\textendash {22};\ ፊል~{3}:{7}\textendash {9};\ {2}\ ጢሞ~{3}:{12}}
+\SunChapter{{2}}{ሐምሌ}{የሐዋርያት\ ሥራ}{Acts}
+\SunChapter{{9}}{ሐምሌ}{የሐዋርያት\ ሥራ}{Acts}
+\SunChapter{{16}}{ሐምሌ}{የሐዋርያት\ ሥራ}{Acts}
+\SunTopic{{23}}{ሐምሌ}{Gentleness\ is\ concentrated\ strength}{}{{2}\ ሳሙ~{22}:{36};\ {2}\ ቆሮ~{10}:{1}\textendash {5};\ ገላ~{5}:{22};\ {1}\ ተሰ~{2}:{7},{8};\ {2}\ ጢሞ~{2}:{24}\textendash {26};\ ያዕ~{3}:{17}}
+\SunChapter{{30}}{ሐምሌ}{የሐዋርያት\ ሥራ}{{27}}
+\SunChapter{{7}}{ንሐሴ}{የሐዋርያት\ ሥራ}{{28}}
+\SunChapter{{14}}{ንሐሴ}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{1}}
+\SunChapter{{21}}{ንሐሴ}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{2}}
+\SunChapter{{28}}{ንሐሴ}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{3}}
+\SunTopic{{5}}{ምስክርም}{The\ Word\ purifies\ life}{}{መዝ~{119}:{9};\ ዮሐ~{15}:{3};\ {17}:{17};\ ኤፌ~{5}:{26};\ ያዕ~{1}:{21};\ {1}\ ጴጥ~{1}:{22}}
+\SunChapter{{7}}{ምስክርም}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{4}}
+\SunChapter{{14}}{ምስክርም}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{5}}
+\SunChapter{{21}}{ምስክርም}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{6}}
+\SunTopic{{28}}{ምስክርም}{Continual\ willingness\ essential}{}{{1}\ ሳሙ~{3}:{10};\ {12}:{21}\textendash {24};\ {1}\ ዜና~{28}:{9};\ {29}:{13}\textendash {18};\ ኢሳ~{1}:{18},{19};\ {6}:{8};\ {1}\ ቆሮ~{9}:{17};\ ፊሞ~{1}:{21}}
+\SunChapter{{5}}{ጥቅምት}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{7}}
+\SunChapter{{12}}{ጥቅምት}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{8}}
+\SunChapter{{19}}{ጥቅምት}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{9}}
+\SunTopic{{26}}{ጥቅምት}{Songs\ of\ victory}{}{ዘፀ~{15}:{1}\textendash {2};\ መሳ~{5}:{1}\textendash {31};\ {2}\ ሳሙ~{22}:{1};\ ኢሳ~{26}:{1};\ ሆሴ~{2}:{15};\ ራእ~{14}:{3};\ {15}:{3}\textendash {4}}
+\SunChapter{{3}}{ማር}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{10}}
+\SunChapter{{10}}{ማር}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{11}}
+\SunChapter{{17}}{ማር}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{12}}
+\SunChapter{{24}}{ማር}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{13}}
+\SunChapter{{1}}{ታህሳስ}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{14}}
+\SunChapter{{8}}{ታህሳስ}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{15}}
+\SunChapter{{15}}{ታህሳስ}{{1}\ ኛ\ ወደ\ ቆሮንቶስ\ ሰዎች}{{16}}
+}
+\renewcommand{\WedA}{
+\WedListH{\amharicbold{\Huge\ የመጽሐፍ\ ቅዱስ\ ንባብ}\ \bnf{2020}}
+\WedListSubH{\amharicbold{እሮብ}}
+\WedChapter{{26}}{ታህሳስ}{መጽሐፈ\ ሳሙኤል\ ቀዳማዊ}{{25}}{Wisdom\ to\ overcome\ evil\ with\ good}{}
+\WedChapter{{3}}{ጥረ}{መጽሐፈ\ ሳሙኤል\ ቀዳማዊ}{{26}}{Live\ like\ fool,\ die\ like\ a\ fool}{}
+\WedChapter{{10}}{ጥረ}{መጽሐፈ\ ሳሙኤል\ ቀዳማዊ}{{27}}{Impulsive\ decisions\ result\ in\ disaster}{}
+\WedChapter{{17}}{ጥረ}{መጽሐፈ\ ሳሙኤል\ ቀዳማዊ}{{28}}{Trying\ to\ disguise\ self\ only\ reveals\ self}{}
+\WedChapter{{24}}{ጥረ}{መጽሐፈ\ ሳሙኤል\ ቀዳማዊ}{{29}\ \&\ {30}}{Trials\ often\ follow\ hard\ on\ each\ other}{}
+\WedChapter{{1}}{የካቲት}{መጽሐፈ\ ሳሙኤል\ ቀዳማዊ}{{31}}{High\ cost\ of\ one\ man's\ rebellion}{}
+\WedChapter{{8}}{የካቲት}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{1}}{David\ didn’t\ rejoice\ in\ another's\ defeat}{}
+\WedTopic{{15}}{የካቲት}{Characteristics\ of\ the\ bride\ of\ Christ}{}{ኢሳ~{61}:{10};\ {62}:{5};\ ኤር~{2}:{32};\ ማቴ~{25}:{10};\ ራእ~{7}:{9}\textendash {14};\ {21}:{2}\textendash {11},~{22}\textendash {27};\ {22}:{10}\textendash {11}}
+\WedChapter{{22}}{የካቲት}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{2}}{Not\ submitting\ to\ God’s\ will\ causes\ division}{}
+\WedChapter{{29}}{የካቲት}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{3}\ \&\ {4}}{God's\ anointed\ increasing\ in\ strength}{}
+\WedChapter{{6}}{መጋቢት}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{5}}{Unity\ in\ obeying\ one\ common\ king}{}
+\WedTopic{{13}}{መጋቢት}{God's\ Purpose\ in\ calling\ us}{}{ዮሐ~{15}:{8};\ ሮሜ~{8}:{29};\ ፊል~{3}:{12}\textendash {14};\ ቲቶ~{2}:{10}\textendash {14};\ ዕብ~{12}:{22}\textendash {24};\ {1}\ ጴጥ~{2}:{9}}
+\WedChapter{{20}}{መጋቢት}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{6}}{The\ God\ of\ a\ second\ chance}{}
+\WedChapter{{27}}{መጋቢት}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{7}}{Blessing\ even\ in\ unanswered\ prayer}{}
+\WedChapter{{4}}{ሚያዚያ}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{8}\ \&\ {9}}{Humble\ yourself\ and\ God\ will\ exalt\ you}{}
+\WedTopic{{11}}{ሚያዚያ}{Investing\ in\ what\ matters\ eternally}{}{ማቴ~{6}:{19}\textendash {21};\ {26}:{8}\textendash {13};\ ሉቃ~{10}:{39}\textendash {42};\ ገላ~{6}:{7}\textendash {10};\ ፊል~{3}:{8}\textendash {11};\ ራእ~{3}:{18}}
+\WedChapter{{18}}{ሚያዚያ}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{10}\ \&\ {11}}{Examples\ for\ our\ warning\ and\ learning}{}
+\WedChapter{{25}}{ሚያዚያ}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{12}}{Chastening\ proves\ God’s\ love\ to\ us}{}
+\WedChapter{{2}}{ግንቦት}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{13}\ \&\ {14}}{Forgiveness\ is\ not\ cheap}{}
+\WedTopic{{9}}{ግንቦት}{The\ weak\ in\ Him\ are\ strong}{}{{1}\ ሳሙ~{15}:{17}\textendash {19};\ መዝ~{8}:{2},{3};\ ኢሳ~{40}:{31};\ {1}\ ቆሮ~{1}:{26}\textendash {29};\ {2}\ ቆሮ~{12}:{9};\ ዕብ~{11}:{32}\textendash {34}}
+\WedChapter{{16}}{ግንቦት}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{15}\ \&\ {16}}{Times\ of\ crisis\ reveal\ people's\ character}{}
+\WedChapter{{23}}{ግንቦት}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{17}}{Pride\ goes\ before\ destruction}{}
+\WedChapter{{30}}{ግንቦት}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{18}\ \&\ {19}}{Faithful\ are\ the\ wounds\ of\ a\ friend}{}
+\WedTopic{{7}}{ስኔ}{What\ makes\ a\ person\ beloved\ of\ God}{}{ዘዳ~{34}:{10}\textendash {12};\ {1}\ ሳሙ~{16}:{7};\ ዳን~{9}:{23};\ ዮሐ~{11}:{5};\ {13}:{23};\ ሐሥ~{13}:{22};\ ያዕ~{2}:{23}}
+\WedChapter{{14}}{ስኔ}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{20}}{Blessed\ are\ the\ peacemakers!}{}
+\WedChapter{{21}}{ስኔ}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{21}}{Promises\ are\ not\ to\ be\ taken\ lightly}{}
+}
+\renewcommand{\EndNoteWedA}{\btf{}}
+\renewcommand{\WedB}[0]{%
+\WedListH{\amharicbold{\Huge\ የመጽሐፍ\ ቅዱስ\ ንባብ}\ \bnf{2020}}
+\WedListSubH{\amharicbold{እሮብ}}
+\WedChapter{{28}}{ስኔ}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{22}}{Glorifying\ God\ for\ all\ victories\ won}{}
+\WedTopic{{5}}{ሐምሌ}{Things\ more\ precious\ than\ gold}{}{ኢዮ~{28}:{12}\textendash {15};\ መዝ~{19}:{10},{11};\ Pr~{3}:{13},{14};\ {8}:{10},{19};\ {16}:{16};\ ኢሳ~{13}:{12};\ {1}\ ጴጥ~{1}:{7}}
+\WedChapter{{12}}{ሐምሌ}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{23}}{Humble\ followers\ become\ safe\ leaders}{}
+\WedChapter{{19}}{ሐምሌ}{መጽሐፈ\ ሳሙኤል\ ካልዕ}{{24}}{Sincere\ repentance\ brings\ true\ blessing}{}
+\WedChapter{{26}}{ሐምሌ}{መጽሐፈ\ ምሳሌ}{{1}}{The\ importance\ of\ wisdom}{}
+\WedChapter{{3}}{ንሐሴ}{መጽሐፈ\ ምሳሌ}{{2}}{The\ path\ of\ wisdom}{}
+\WedChapter{{10}}{ንሐሴ}{መጽሐፈ\ ምሳሌ}{{3}}{Cultivating\ an\ obedient\ and\ trusting\ heart}{}
+\WedChapter{{17}}{ንሐሴ}{መጽሐፈ\ ምሳሌ}{{4}}{Ever\ brightening\ path\ of\ righteousness}{}
+\WedChapter{{24}}{ንሐሴ}{መጽሐፈ\ ምሳሌ}{{5}\ \&\ {6}}{Diligence\ and\ watchfulness\ of\ wisdom}{}
+\WedChapter{{1}}{ምስክርም}{መጽሐፈ\ ምሳሌ}{{7}\ \&\ {8}}{Two\ voices\ calling,\ two\ destinations}{}
+\WedChapter{{3}}{ምስክርም}{መጽሐፈ\ ምሳሌ}{{9}}{Wisdoms\ banquet\ offers\ life\ and\ true\ joy}{}
+\WedTopic{{10}}{ምስክርም}{Things\ that\ disturb\ unity}{}{ምሳ~{17}:{9};\ ሉቃ~{22}:{24};\ ሮሜ~{12}:{3}\textendash {5};\ {1}\ ቆሮ~{1}:{10}\textendash {13};\ {3}:{3},{4};\ ፊል~{2}:{3};\ ዕብ~{12}:{15}}
+\WedChapter{{17}}{ምስክርም}{መጽሐፈ\ ምሳሌ}{{10}}{Wise\ words\ and\ works\ of\ the\ righteous}{}
+\WedChapter{{24}}{ምስክርም}{መጽሐፈ\ ምሳሌ}{{11}}{Contrast\ of\ the\ upright\ and\ the\ wicked}{}
+\WedChapter{{1}}{ጥቅምት}{Psalm}{{33}}{Worship\ in\ spirit\ and\ truth}{}
+\WedTopic{{8}}{ጥቅምት}{Value\ of\ true\ contentment}{}{{2}\ ነገ~{4}:{13};\ መዝ~{131}:{2};\ ማቴ~{6}:{33};\ ሉቃ~{12}:{15};\ ፊል~{4}:{11};\ {1}\ ጢሞ~{6}:{6}\textendash {8}}
+\WedChapter{{15}}{ጥቅምት}{Psalm}{{34}\ \&\ {35}}{Witness\ of\ God's\ merciful\ deliverance}{}
+\WedChapter{{22}}{ጥቅምት}{Psalm}{{36}\ \&\ {37}}{Man's\ wickedness\ and\ God's\ faithfulness}{}
+\WedChapter{{29}}{ጥቅምት}{Psalm}{{38}\ \&\ {39}}{God\ does\ not\ allow\ us\ to\ sin\ successfully}{}
+\WedTopic{{6}}{ማር}{Danger\ of\ self\textendash deception}{}{ማቴ~{7}:{21}\textendash {23};\ {1}\ ቆሮ~{3}:{18};\ {10}:{12};\ {2}\ ቆሮ~{13}:{5};\ ገላ~{6}:{3},{7};\ {2}\ ጢሞ~{3}:{13};\ ራእ~{3}:{16},{17}}
+\WedChapter{{13}}{ማር}{Psalm}{{40}\ \&\ {41}}{Our\ God\ is\ worth\ wating\ for}{}
+\WedChapter{{20}}{ማር}{Psalm}{{42}\ \&\ {43}}{Start\ feeding\ on\ the\ Word,\ not\ on\ feelings}{}
+\WedChapter{{27}}{ማር}{Psalm}{{44}\ \&\ {45}}{Trust\ in\ God\ and\ not\ in\ your\ resources}{}
+\WedChapter{{4}}{ታህሳስ}{Psalm}{{46}\ \&\ {47}}{What\ we\ can\ learn\ in\ the\ stillness}{}
+\WedChapter{{11}}{ታህሳስ}{Psalm}{{48}\ \&\ {49}}{Possessing\ treasures\ beyond\ this\ life}{}
+\WedChapter{{18}}{ታህሳስ}{Psalm}{{50}}{Judgment\ begins\ with\ God's\ people}{}
+}
+\renewcommand{\EndNoteWedB}{\btf{}}
+\LargePage
+\renewcommand{\WedWidth}[0]{106mm}
+\renewcommand{\SunWidth}[0]{80mm}
+%\debug
+\StartOutput
+\TwoPageTwisted
+\EndOutput
