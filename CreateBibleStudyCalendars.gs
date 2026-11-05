@@ -1,24 +1,33 @@
+const aVersion = "1.5";
+var CALENDAR_DESCRIPTION_MAX_LENGTH = 8192;
 
-var prevChapter = ' ';
-var oldChapter = ' ';
-var currentsubject = '';
-
+// Text added when scripture has to be truncated.
+var SCRIPTURE_TRUNCATED_MESSAGE =
+  '[Bible text exceeded the calendar entry limit. Remaining Scripture omitted.]';
 
 /* =========================================================
    MAIN FUNCTIONS
    ========================================================= */
 
 function testCreateAll() {
-  SheetID = '1b8V2JQnOESejd8Qm8ISbksHSdHv7JcTAo36IR_I4tw4';
-  CreateAll();
+  CreateAll('1b8V2JQnOESejd8Qm8ISbksHSdHv7JcTAo36IR_I4tw4');
 }
 
-function CreateAll() {
+function CreateAll(sheetId) {
 
-  if (!SheetID)
+  if (!sheetId)
     throw new Error('No sheet id specified');
 
-  var ss = SpreadsheetApp.openById(SheetID);
+  var ss = SpreadsheetApp.openById(sheetId);
+
+  // Shared state for reference continuation and error reporting.
+  // Initialized once per CreateAll execution to preserve the original
+  // global-variable lifetime and behaviour.
+  var context = {
+    prevChapter: ' ',
+    oldChapter: ' ',
+    currentSubject: ''
+  };
 
   // Read the source data.
   var Sunsheet = ss.getSheetByName('English');
@@ -86,7 +95,8 @@ function CreateAll() {
         Scriptdata,
         Numdata,
         tmpLang,
-        indexes
+        indexes,
+        context
       );
 
       Bibsheet.getRange('D' + (ii + 2)).setValue('');
@@ -102,7 +112,8 @@ function CreateAll() {
         Scriptdata,
         Numdata,
         tmpLang,
-        indexes
+        indexes,
+        context
       );
 
       Bibsheet.getRange('E' + (ii + 2)).setValue('');
@@ -266,10 +277,11 @@ function CreateCalendarEntries(
   Scriptdata,
   Numdata,
   tmpLang,
-  indexes
+  indexes,
+  context
 ) {
 
-  currentsubject = '';
+  context.currentSubject = '';
 
   for (var i = 0; i < Caldata.length; ++i) {
 
@@ -287,7 +299,7 @@ function CreateCalendarEntries(
     var tmpBook = row[3];
     var tmpChapter = row[4];
 
-    currentsubject =
+    context.currentSubject =
       tmpDate + ' - ' +
       tmpTopic + ' - ' +
       tmpRef + ' - ' +
@@ -352,7 +364,8 @@ function CreateCalendarEntries(
       tmpTranslatedBook,
       Subdata,
       tmpLang,
-      indexes
+      indexes,
+      context
     );
 
     // Append creation date.
@@ -361,11 +374,18 @@ function CreateCalendarEntries(
       Utilities.formatDate(
         new Date(),
         'GMT+2',
-        'yyyy-MM-dd   HH:mm:ss'
-      );
+        'yyyy-MM-dd HH:mm:ss'
+      ) + ' Version: ' + aVersion;
 
-    aScripture = aScripture.replace(/\n+$/, '');
-    aScripture = aScripture + '\n\n' + tmpDateTime;
+    // Fit the scripture into the calendar description limit.
+    // The footer is always preserved.
+    aScripture = FitScriptureToCalendarLimit(
+      aScripture,
+      tmpDateTime
+    );
+
+    //    aScripture = aScripture.replace(/\n+$/, '');
+    //    aScripture = aScripture + '\n\n' + tmpDateTime;
 
     aEntry.setDescription(aScripture);
   }
@@ -533,7 +553,8 @@ function GetScripture(
   tmpTranslatedBook,
   Subdata,
   tmpLang,
-  indexes
+  indexes,
+  context
 ) {
 
   var tmpScripture = '';
@@ -561,7 +582,8 @@ function GetScripture(
           tmpChapter,
           -1,
           tmpTranslatedBook,
-          indexes
+          indexes,
+          context
         );
       }
     }
@@ -619,7 +641,8 @@ function GetScripture(
           sc,
           sv + '-' + ev,
           tmpTranslatedBook,
-          indexes
+          indexes,
+          context
         );
       }
 
@@ -634,7 +657,8 @@ function GetScripture(
         aChapter,
         -1,
         tmpTranslatedBook,
-        indexes
+        indexes,
+        context
       );
     }
   }
@@ -647,13 +671,13 @@ function GetScripture(
       aRef,
       Subdata,
       tmpLang,
-      indexes
+      indexes,
+      context
     );
   }
 
   return tmpScripture;
 }
-
 
 function GetRefScripture(
   aScriptdata,
@@ -661,7 +685,64 @@ function GetRefScripture(
   aRef,
   Subdata,
   tmpLang,
-  indexes
+  indexes,
+  context
+) {
+
+  var tmpScripture = '';
+
+  try {
+
+    aRef = aRef.replace(/\n/g, '');
+
+    // Semicolons separate references.
+    // Commas separate verses within the same chapter.
+    var tmpRefs = Utilities.parseCsv(aRef, ';')[0];
+
+    for (var i = 0; i < tmpRefs.length; ++i) {
+
+      var tmpRef = tmpRefs[i].trim();
+
+      var tmprefverscript = GetRefVerseScripture(
+        aScriptdata,
+        aNumdata,
+        tmpRef,
+        Subdata,
+        tmpLang,
+        indexes,
+        context
+      );
+
+      // Add a blank line before each subsequent reference.
+      if (tmpScripture != '')
+        tmpScripture += '\n';
+
+      tmpScripture += tmprefverscript + '\n';
+    }
+  }
+
+  catch (e) {
+
+    tmpScripture = 'Could not parse references. ' + aRef;
+
+    MailApp.sendEmail({
+      to: 'devfldinfo@gmail.com',
+      subject: 'Error Creating Bible reading Entry ' + tmpLang,
+      htmlBody: aRef
+    });
+  }
+
+  return tmpScripture;
+}
+
+function GetRefScriptureold(
+  aScriptdata,
+  aNumdata,
+  aRef,
+  Subdata,
+  tmpLang,
+  indexes,
+  context
 ) {
 
   var tmpScripture = '';
@@ -690,7 +771,8 @@ function GetRefScripture(
             tmpRef2,
             Subdata,
             tmpLang,
-            indexes
+            indexes,
+            context
           );
 
           // Add a blank line before each subsequent reference.
@@ -725,22 +807,23 @@ function GetRefVerseScripture(
   tmpRef,
   Subdata,
   tmpLang,
-  indexes
+  indexes,
+  context
 ) {
 
   var tmpBookName = GetRefBookName(tmpRef, aNumdata, indexes);
 
   if (tmpBookName == '')
-    tmpBookName = prevChapter;
+    tmpBookName = context.prevChapter;
   else
-    prevChapter = tmpBookName;
+    context.prevChapter = tmpBookName;
 
   var tmpChapter = GetRefChapter(tmpRef);
 
   if (tmpChapter == '')
-    tmpChapter = oldChapter;
+    tmpChapter = context.oldChapter;
 
-  oldChapter = tmpChapter;
+  context.oldChapter = tmpChapter;
 
   var tmpVerses = GetRefVerses(tmpRef);
 
@@ -760,7 +843,8 @@ function GetRefVerseScripture(
     tmpChapter,
     tmpVerses,
     tmpTranslatedBook,
-    indexes
+    indexes,
+    context
   );
 }
 
@@ -876,7 +960,8 @@ function GetChapterScripture(
   aChapter,
   aVerses,
   tmpTranslatedBook,
-  indexes
+  indexes,
+  context
 ) {
 
   var tmpScripture = tmpTranslatedBook + ' ' + aChapter;
@@ -929,7 +1014,11 @@ function GetChapterScripture(
       continue;
 
     var tmpVerseNumber = row[2];
-    var tmpVerseScripture = row[3];
+
+    // Remove source line breaks inside a verse while preserving word spacing.
+    var tmpVerseScripture = String(row[3] || '')
+      .replace(/\s*[\r\n]+\s*/g, ' ')
+      .trim();
 
     if (IsInVerses(tmpVerseNumber, aVerses)) {
 
@@ -948,7 +1037,7 @@ function GetChapterScripture(
 
     MailApp.sendEmail({
       to: 'devfldinfo@gmail.com',
-      subject: currentsubject + ' - Scripture not found ',
+      subject: context.currentSubject + ' - Scripture not found ',
       htmlBody: '...'
     });
   }
@@ -991,8 +1080,7 @@ function IsInVerses(tmpVerseNumber, aVerses) {
     var atmpVerses = Utilities.parseCsv(aVerses, ',')[0];
 
     for (var i = 0; i < atmpVerses.length; ++i) {
-
-      var tmpv = atmpVerses[i];
+      var tmpv = atmpVerses[i].trim();
       var tmpv2 = tmpVerseNumber;
 
       if (tmpv2 == tmpv)
@@ -1049,4 +1137,59 @@ function GetMapValueLoose(aMap, aKey) {
   }
 
   return undefined;
+}
+
+function FitScriptureToCalendarLimit(scripture, footer) {
+
+  var maxLength = CALENDAR_DESCRIPTION_MAX_LENGTH;
+
+  // Remove trailing blank lines.
+  scripture = scripture.replace(/\n+$/, '');
+
+  // First check whether everything fits.
+  var completeText = scripture + '\n\n' + footer;
+
+  if (completeText.length <= maxLength)
+    return completeText;
+
+  // Reserve space for the truncation notice and footer.
+  var suffix =
+    '\n\n' +
+    SCRIPTURE_TRUNCATED_MESSAGE +
+    '\n\n' +
+    footer;
+
+  var availableLength = maxLength - suffix.length;
+
+  if (availableLength <= 0)
+    throw new Error('Calendar description limit is too small.');
+
+  // Split scripture into lines.
+  var lines = scripture.split('\n');
+
+  var result = '';
+  var previousLine = '';
+
+  for (var i = 0; i < lines.length; ++i) {
+
+    var line = lines[i];
+
+    // Preserve blank lines and chapter headings.
+    var candidate = result
+      ? result + '\n' + line
+      : line;
+
+    // Never include a line that exceeds the available space.
+    if (candidate.length > availableLength)
+      break;
+
+    result = candidate;
+    previousLine = line;
+  }
+
+  // Remove trailing blank lines.
+  result = result.replace(/\n+$/, '');
+
+  // Append truncation notice and footer.
+  return result + suffix;
 }
