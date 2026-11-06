@@ -1,21 +1,22 @@
-//Version 2.0
+rsion 2.4
 //This is the Web App that is called by the Bible Reading Translations sheet
 //When changes are made to this file, manage deployments and create a new version so that the sheet can call the latest code
 //LatexCompile is deployed as a library.
 
 /*==== CONSTANTS ====*/
-const SheetID = '1urPgZhnrZ-6zWFj_bRFzeY41jkKAkzRwcCFy9K4gWD4';
+var SheetID = ''; //It is passed
+//'1urPgZhnrZ-6zWFj_bRFzeY41jkKAkzRwcCFy9K4gWD4';
 var aLatexFolder = '1y8qwfeOtjauaFiKNL-l3VoYUTKca6Q-a';
 var aOutputFolder = '1WgOSvBuxg5hekeawPpivVcsWhNhEnx5Z';
 var aBackupFolder = '1vgUDHX4OTfY4ujNiZS14SJ-KyBKlfRXX';
 var aAlignmentFolder = "1DtcwRtwxTTZ7P1IdkQ-KfnygadvqfZQ_";
 
-var GITHUB_TOKEN ="";
+var GITHUB_TOKEN = "";
 var GITHUB_OWNER = "";
 var GITHUB_REPO = "";
 
 var aStyleFile = "";
-var aStyleFileName = "BibleReadings1.sty"; 
+var aStyleFileName = "BibleReadings1.sty";
 var applyNumFont = "";
 var aCalToUse = "";
 
@@ -52,6 +53,7 @@ function generateBibleReadingsDev() {
 function doPost(e) {
 
   const key = e.parameter.key;
+  SheetID = e.parameter.sheetid;
   const props = PropertiesService.getScriptProperties();
   const API_KEY = props.getProperty('API_KEY');
 
@@ -66,6 +68,10 @@ function doPost(e) {
     else if (e.parameter.action === "getAlignmentImages") {
       getAlignmentImages();
     }
+    else if (e.parameter.action === "createCalendars") {
+      CreateAll(SheetID);
+    }
+
   }
   catch (e) {
     return ContentService.createTextOutput(e.message);
@@ -192,8 +198,7 @@ function generateTEXFiles(tabName) {
     applyNumFont = dontapplyNumFont;
     aCalToUse = calendartouse;
 
-    if (styFile)
-    {
+    if (styFile) {
       aStyleFileName = styFile;
       aStyleFile = readStyleFile(styFile);
     }
@@ -472,13 +477,13 @@ ${aWatermark}
     const refsTranslated = TranslateReferenceBooks(refsRaw, mapA);
     const refs = ReferenceLatexText(refsTranslated);
 
-    if(aCalToUse){
-      var result = gregorianToEthiopian(day,Utilities.formatDate(date, Session.getScriptTimeZone(), 'M'),year);
+    if (aCalToUse) {
+      var result = gregorianToEthiopian(day, Utilities.formatDate(date, Session.getScriptTimeZone(), 'M'), year);
       day = String(result.day);
       month = getMonthName(result.month);
       year = String(result.year);
-//      Logger.log(`${day},${month}, ${year}`);
-  }
+      //      Logger.log(`${day},${month}, ${year}`);
+    }
 
     const monthA = PrepareLatexText(mapA[month] || month);
     const monthB = bilingual
@@ -922,12 +927,12 @@ function gregorianToEthiopian(day, month, year) {
       (A51 - 2812 - leapCorrection) / 365
     );
 
- return {
+  return {
     day: ethDay,
     month: ethMonth,
     year: ethYear
   };
- 
+
 }
 
 
@@ -983,7 +988,7 @@ function gregorianToEthiopian1(day, month, year) {
 
 function isGregorianLeapYear_(year) {
   return year % 4 === 0 &&
-         (year % 100 !== 0 || year % 400 === 0);
+    (year % 100 !== 0 || year % 400 === 0);
 }
 
 function getMonthName(monthNumber) {
